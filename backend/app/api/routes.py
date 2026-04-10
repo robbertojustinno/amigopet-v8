@@ -283,7 +283,7 @@ def expire_invites(db: Session = Depends(get_db)):
 import requests
 import os
 
-@router.post("/pagamento")
+@router.get("/pagamento")
 def criar_pagamento():
     access_token = os.getenv("MERCADO_PAGO_ACCESS_TOKEN")
 
