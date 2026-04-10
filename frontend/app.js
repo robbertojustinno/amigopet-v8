@@ -21,7 +21,15 @@ function renderSession(user) {
     `ID: ${user.id ?? "-"}`,
     `Nome: ${user.full_name ?? "-"}`,
     `E-mail: ${user.email ?? "-"}`,
-    `Perfil: ${user.role === "walker" ? "Passeador" : user.role === "client" ? "Cliente" : user.role === "admin" ? "Admin" : (user.role ?? "-")}`,
+    `Perfil: ${
+      user.role === "walker"
+        ? "Passeador"
+        : user.role === "client"
+          ? "Cliente"
+          : user.role === "admin"
+            ? "Admin"
+            : (user.role ?? "-")
+    }`,
     `Bairro: ${user.neighborhood || "-"}`,
     `Cidade: ${user.city || "-"}`,
     `Endereço: ${user.address || "-"}`,
@@ -103,6 +111,7 @@ function getAbsoluteFileUrl(relativeUrl) {
 
 async function uploadProfilePhoto(file) {
   if (!file) return null;
+
   if (!file.type.startsWith("image/")) {
     throw new Error("Selecione um arquivo de imagem válido.");
   }
@@ -112,7 +121,7 @@ async function uploadProfilePhoto(file) {
 
   setPhotoStatus(`Enviando foto: ${file.name}...`);
 
-  const res = await fetch(`/api/uploads/profile-photo`, {
+  const res = await fetch(`${API}/uploads/profile-photo`, {
     method: "POST",
     body: formData
   });
@@ -124,6 +133,7 @@ async function uploadProfilePhoto(file) {
   }
 
   uploadedPhotoUrl = data.file_url;
+
   const profilePhotoInput = byId("profile_photo");
   if (profilePhotoInput) {
     profilePhotoInput.value = getAbsoluteFileUrl(data.file_url);
@@ -347,40 +357,30 @@ byId("registerForm")?.addEventListener("submit", async (e) => {
 byId("loginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  if (currentAccessTab === "admin") {
-    const email = byId("login_email")?.value || "";
-    const password = byId("login_password")?.value || "";
+  const email = byId("login_email")?.value || "";
+  const password = byId("login_password")?.value || "";
 
-    if (email === "admin@amigopet.com" && password === "123456") {
-      const fakeAdmin = {
-        id: 0,
-        full_name: "Administrador",
-        email: "admin@amigopet.com",
-        role: "admin",
-        neighborhood: "Painel central",
-        city: "Sistema",
-        address: "Ambiente administrativo",
-        online: true
-      };
-      localStorage.setItem("session_user", JSON.stringify(fakeAdmin));
-      renderSession(fakeAdmin);
+  if (currentAccessTab === "admin") {
+    try {
+      const data = await api("/admin/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password })
+      });
+
+      localStorage.setItem("session_user", JSON.stringify(data));
+      renderSession(data);
       alert("Login admin realizado.");
       return;
+    } catch (err) {
+      alert(err.message);
+      return;
     }
-
-    alert("Credenciais admin inválidas.");
-    return;
   }
 
   try {
-    const payload = {
-      email: byId("login_email")?.value || "",
-      password: byId("login_password")?.value || ""
-    };
-
     const data = await api("/users/login", {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ email, password })
     });
 
     localStorage.setItem("session_user", JSON.stringify(data));
