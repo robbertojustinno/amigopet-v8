@@ -1,29 +1,26 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-frontend_dir = BASE_DIR / "frontend"
-from pathlib import Path
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from starlette.responses import FileResponse
+from fastapi.responses import FileResponse
+from pathlib import Path
 
 from app.api.routes import router
 from app.core.config import settings
 from app.db.session import Base, engine
 
-from fastapi.staticfiles import StaticFiles
-
-if frontend_dir.exists():
-    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
-
-
-Base.metadata.create_all(bind=engine)
-
+# =========================
+# 🚀 CRIA APP PRIMEIRO
+# =========================
 app = FastAPI(title=settings.APP_NAME, version="8.0.0")
 
+# =========================
+# 🗄️ BANCO
+# =========================
+Base.metadata.create_all(bind=engine)
+
+# =========================
+# 🌐 CORS
+# =========================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -32,36 +29,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# =========================
+# 📁 STORAGE
+# =========================
 storage_dir = Path("storage")
 storage_dir.mkdir(exist_ok=True)
 
 app.mount("/storage", StaticFiles(directory=str(storage_dir)), name="storage")
+
+# =========================
+# 🔌 API
+# =========================
 app.include_router(router, prefix="/api")
 
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pathlib import Path
-
+# =========================
+# 🎨 FRONTEND
+# =========================
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-FRONTEND_DIR = BASE_DIR / "frontend"
-
-app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
-
-@app.get("/")
-def serve_frontend():
-    return FileResponse(FRONTEND_DIR / "index.html")
+frontend_dir = BASE_DIR / "frontend"
 
 if frontend_dir.exists():
-    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 
     @app.get("/", include_in_schema=False)
-    async def serve_frontend_index():
+    async def serve_frontend():
         return FileResponse(frontend_dir / "index.html")
 
-    @app.get("/styles.css", include_in_schema=False)
-    async def serve_frontend_styles():
-        return FileResponse(frontend_dir / "styles.css")
-
-    @app.get("/app.js", include_in_schema=False)
-    async def serve_frontend_app_js():
-        return FileResponse(frontend_dir / "app.js")
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
