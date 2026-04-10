@@ -11,6 +11,12 @@ from app.api.routes import router
 from app.core.config import settings
 from app.db.session import Base, engine
 
+from fastapi.staticfiles import StaticFiles
+
+if frontend_dir.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title=settings.APP_NAME, version="8.0.0")
