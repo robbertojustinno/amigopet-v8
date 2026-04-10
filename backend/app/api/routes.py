@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException
+from pathlib import Path
+from uuid import uuid4
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -17,6 +19,32 @@ from app.services.redis_service import redis_service
 from app.services.payment_service import payment_service
 
 router = APIRouter()
+
+ALLOWED_IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif"}
+
+
+@router.post("/uploads/profile-photo")
+async def upload_profile_photo(file: UploadFile = File(...)):
+    if not file.content_type or file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Envie uma imagem JPG, PNG, WEBP ou GIF.")
+
+    uploads_dir = Path("storage/profile_photos")
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+
+    suffix = Path(file.filename or "foto").suffix.lower() or ALLOWED_IMAGE_TYPES[file.content_type]
+    if suffix not in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
+        suffix = ALLOWED_IMAGE_TYPES[file.content_type]
+
+    filename = f"{uuid4().hex}{suffix}"
+    destination = uploads_dir / filename
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Arquivo vazio.")
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="A imagem deve ter no máximo 5 MB.")
+
+    destination.write_bytes(content)
+    return {"file_url": f"/storage/profile_photos/{filename}", "filename": filename}
 
 @router.get("/health")
 def health():
