@@ -1,4 +1,4 @@
-const API = window.API_BASE_URL || "/api";
+const API = "http://localhost:8000/api";
 
 const byId = (id) => document.getElementById(id);
 
