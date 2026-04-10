@@ -26,7 +26,7 @@ storage_dir.mkdir(exist_ok=True)
 app.mount("/storage", StaticFiles(directory=str(storage_dir)), name="storage")
 app.include_router(router, prefix="/api")
 
-frontend_dir = Path(__file__).resolve().parents[3] / "frontend"
+frontend_dir = Path(__file__).resolve().parents[2] / "frontend"
 
 if frontend_dir.exists():
     app.mount("/assets", StaticFiles(directory=str(frontend_dir)), name="frontend-assets")
