@@ -3,193 +3,313 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AmigoPet V8 REAL</title>
+  <title>AmigoPet Pro</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <h1>AmigoPet V8 REAL</h1>
-      <p>Cliente e passeador dentro do app, com convite, timer, mapa e pagamento.</p>
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand-logo">🐾</div>
+      <div>
+        <h1>AmigoPet Pro</h1>
+        <p>Seu pet bem cuidado, seu negócio pronto para crescer</p>
+      </div>
     </div>
-    <div class="badge">Deploy pronto</div>
+
+    <nav class="top-actions">
+      <button type="button" class="ghost-btn" id="goPlansBtn">Planos</button>
+      <button type="button" class="ghost-btn" id="goLoginBtn">Entrar</button>
+      <button type="button" class="primary-btn" id="goRegisterBtn">Criar conta</button>
+    </nav>
   </header>
 
-  <main class="container">
-    <section class="card grid-2">
-      <div>
-        <h2>Criar conta</h2>
-        <form id="registerForm" class="form">
-          <input type="text" id="full_name" placeholder="Nome completo" required />
-          <input type="email" id="email" placeholder="E-mail" required />
-          <input type="password" id="password" placeholder="Senha" required />
+  <main class="page">
+    <section class="hero-grid">
+      <div class="hero-card">
+        <span class="hero-badge">V2 comercial pronta para começar</span>
+        <h2>Transforme sua ideia em um serviço real de passeios para pets.</h2>
+        <p class="hero-text">
+          Com agendamento por horário, planos, histórico, avaliação por estrelas, rota no mapa e área financeira simples.
+        </p>
 
-          <select id="role" required>
-            <option value="client">Cliente</option>
-            <option value="walker">Passeador</option>
-          </select>
+        <div class="hero-buttons">
+          <button type="button" class="primary-btn" id="heroStartBtn">Começar agora</button>
+          <button type="button" class="ghost-btn" id="heroPlansBtn">Ver preços e planos</button>
+        </div>
 
-          <input type="text" id="neighborhood" placeholder="Bairro" />
-          <input type="text" id="city" placeholder="Cidade" />
-          <input type="text" id="address" value="localhost" placeholder="Localização automática" />
-          <input type="text" id="profile_photo" placeholder="Link da foto do passeador ou envie um arquivo" />
-
-          <div class="upload-box" id="photoDropZone">
-            <input type="file" id="profile_photo_file" accept="image/*" hidden />
-            <div class="upload-box-inner">
-              <strong>Foto do passeador</strong>
-              <span>Arraste a imagem aqui, clique para escolher da pasta, ou cole um link no campo acima.</span>
-            </div>
+        <div class="hero-stats">
+          <div class="stat-box">
+            <strong>24h</strong>
+            <span>Pronto para evoluir aos poucos</span>
           </div>
-
-          <div class="upload-actions">
-            <button type="button" id="choosePhotoBtn" class="secondary-btn">Escolher foto da pasta</button>
-            <button type="button" id="clearPhotoBtn" class="secondary-btn">Limpar foto</button>
+          <div class="stat-box">
+            <strong>3</strong>
+            <span>Perfis principais de acesso</span>
           </div>
-
-          <div id="photoUploadStatus" class="hint">Nenhuma foto selecionada.</div>
-
-          <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
-            <img id="photoPreview" alt="Prévia da foto do passeador" />
+          <div class="stat-box">
+            <strong>5★</strong>
+            <span>Sistema de reputação para passeadores</span>
           </div>
-
-          <button type="submit">Cadastrar</button>
-        </form>
-      </div>
-
-      <div>
-        <h2>Entrar</h2>
-        <form id="loginForm" class="form">
-          <input type="email" id="login_email" placeholder="E-mail" required />
-          <input type="password" id="login_password" placeholder="Senha" required />
-          <button type="submit">Entrar</button>
-        </form>
-
-        <div class="status-box">
-          <strong>Usuário logado:</strong>
-          <pre id="sessionBox">Nenhum</pre>
         </div>
       </div>
-    </section>
 
-    <section class="card grid-2">
-      <div>
-        <h2>Mapa automático</h2>
-        <label for="mapAddress">Endereço</label>
-        <input type="text" id="mapAddress" value="localhost" placeholder="Localização automática" />
-        <button id="loadMapBtn" type="button">Carregar mapa</button>
-        <p class="hint">
-          Ao abrir o app, ele tenta localizar você automaticamente. Se preferir, digite um endereço e clique em carregar mapa.
+      <div class="hero-card">
+        <h3>Logo provisonal da marca</h3>
+        <div class="brand-showcase">
+          <div class="brand-showcase-logo">🐶 💚</div>
+          <h2>AmigoPet Pro</h2>
+          <p>Passeios, confiança e cuidado em cada rota.</p>
+        </div>
+        <p class="hero-note">
+          Você pode usar essa identidade agora e depois trocar por uma logo definitiva sem mexer na estrutura do sistema.
         </p>
       </div>
+    </section>
 
-      <div class="map-wrap">
-        <iframe id="mapFrame" loading="lazy"></iframe>
+    <section class="feature-grid">
+      <div class="feature-card">
+        <h3>Agendamento</h3>
+        <p>O cliente escolhe endereço, tipo de passeio e data/hora.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Operação</h3>
+        <p>O sistema encontra o passeador mais próximo e mostra rota no mapa.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Crescimento</h3>
+        <p>Você acompanha pedidos, receita, repasses e desempenho da equipe.</p>
       </div>
     </section>
 
-    <section class="card grid-3">
-      <div>
-        <h2>Cadastrar pet</h2>
-        <form id="petForm" class="form">
-          <input type="number" id="pet_owner_id" placeholder="ID do cliente" required />
-          <input type="text" id="pet_name" placeholder="Nome do pet" required />
-          <input type="text" id="pet_breed" placeholder="Raça" />
-          <select id="pet_size">
-            <option value="pequeno">Pequeno</option>
-            <option value="medio">Médio</option>
-            <option value="grande">Grande</option>
-          </select>
-          <input type="text" id="pet_notes" placeholder="Observações" />
-          <button type="submit">Salvar pet</button>
-        </form>
+    <section class="access-section" id="accessSection">
+      <div class="section-head">
+        <h2>Escolha seu tipo de acesso</h2>
+        <p>Entradas separadas para administração, clientes e passeadores.</p>
       </div>
 
-      <div>
-        <h2>Buscar passeadores</h2>
-        <form id="walkerSearchForm" class="form">
-          <input type="text" id="search_neighborhood" placeholder="Bairro" />
-          <input type="text" id="search_city" placeholder="Cidade" />
-          <button type="submit">Buscar</button>
-        </form>
+      <div class="access-grid">
+        <article class="access-card admin-card">
+          <div class="access-icon">🛠️</div>
+          <h3>Admin</h3>
+          <p>Controle do sistema, usuários, solicitações, repasses e visão geral do negócio.</p>
+          <ul class="access-list">
+            <li>Gerenciar usuários</li>
+            <li>Ver solicitações</li>
+            <li>Monitorar pagamentos</li>
+          </ul>
+          <button type="button" class="dark-btn" data-tab-target="admin">Entrar como Admin</button>
+        </article>
 
-        <div id="walkerList" class="list"></div>
-      </div>
+        <article class="access-card client-card">
+          <div class="access-icon">🐾</div>
+          <h3>Cliente</h3>
+          <p>Solicite passeios, acompanhe o pedido, converse no chat e faça o pagamento.</p>
+          <ul class="access-list">
+            <li>Solicitar passeio</li>
+            <li>Acompanhar atendimento</li>
+            <li>Pagar pelo app</li>
+          </ul>
+          <button type="button" class="primary-btn" data-tab-target="client">Entrar como Cliente</button>
+        </article>
 
-      <div>
-        <h2>Solicitar passeio</h2>
-        <form id="walkForm" class="form">
-          <input type="number" id="client_id" placeholder="ID do cliente" required />
-          <input type="number" id="walker_id" placeholder="ID do passeador" />
-          <input type="number" id="pet_id" placeholder="ID do pet" />
-          <input type="text" id="pickup_address" value="localhost" placeholder="Localização automática" />
-          <input type="text" id="walk_neighborhood" placeholder="Bairro" />
-          <input type="text" id="walk_city" placeholder="Cidade" />
-          <input type="datetime-local" id="scheduled_at" />
-          <input type="number" id="duration_minutes" placeholder="Duração" value="30" />
-          <input type="number" id="price" placeholder="Preço" value="35" step="0.01" />
-          <input type="text" id="walk_notes" placeholder="Observações" />
-          <button type="submit">Criar solicitação</button>
-        </form>
+        <article class="access-card walker-card">
+          <div class="access-icon">🚶</div>
+          <h3>Passeador</h3>
+          <p>Receba solicitações, aceite corridas, visualize rota e conclua os passeios.</p>
+          <ul class="access-list">
+            <li>Receber convites</li>
+            <li>Ficar online/offline</li>
+            <li>Concluir passeios</li>
+          </ul>
+          <button type="button" class="secondary-btn" data-tab-target="walker">Entrar como Passeador</button>
+        </article>
       </div>
     </section>
 
-    <section class="card grid-2">
-      <div>
-        <h2>Solicitações</h2>
-        <div class="toolbar">
-          <input type="number" id="request_user_id" placeholder="Filtrar por ID do usuário" />
-          <button id="loadRequestsBtn" type="button">Atualizar</button>
-          <button id="expireBtn" type="button">Expirar convites</button>
+    <section class="auth-panel" id="authPanel">
+      <div class="tabs">
+        <button type="button" class="tab-btn active" data-tab="client">Cliente</button>
+        <button type="button" class="tab-btn" data-tab="walker">Passeador</button>
+        <button type="button" class="tab-btn" data-tab="admin">Admin</button>
+      </div>
+
+      <div class="auth-layout">
+        <section class="panel-card">
+          <h2 id="loginTitle">Entrar como Cliente</h2>
+          <form id="loginForm" class="form">
+            <input type="email" id="login_email" placeholder="E-mail" required />
+            <input type="password" id="login_password" placeholder="Senha" required />
+            <button type="submit" id="loginSubmitBtn">Entrar</button>
+          </form>
+
+          <div class="status-box">
+            <strong>Usuário logado:</strong>
+            <pre id="sessionBox">Nenhum</pre>
+          </div>
+        </section>
+
+        <section class="panel-card" id="registerPanel">
+          <h2 id="registerTitle">Criar conta de Cliente</h2>
+          <form id="registerForm" class="form">
+            <input type="text" id="full_name" placeholder="Nome completo" required />
+            <input type="email" id="email" placeholder="E-mail" required />
+            <input type="password" id="password" placeholder="Senha" required />
+
+            <select id="role" required>
+              <option value="client">Cliente</option>
+              <option value="walker">Passeador</option>
+            </select>
+
+            <input type="text" id="neighborhood" placeholder="Bairro" />
+            <input type="text" id="city" placeholder="Cidade" />
+            <input type="text" id="address" value="localhost" placeholder="Localização automática" />
+            <input type="text" id="profile_photo" placeholder="Link da foto do passeador ou envie um arquivo" />
+
+            <div class="upload-box" id="photoDropZone">
+              <input type="file" id="profile_photo_file" accept="image/*" hidden />
+              <div class="upload-box-inner">
+                <strong>Foto do passeador</strong>
+                <span>Arraste a imagem aqui, clique para escolher da pasta, ou cole um link no campo acima.</span>
+              </div>
+            </div>
+
+            <div class="upload-actions">
+              <button type="button" id="choosePhotoBtn" class="secondary-btn">Escolher foto da pasta</button>
+              <button type="button" id="clearPhotoBtn" class="secondary-btn">Limpar foto</button>
+            </div>
+
+            <div id="photoUploadStatus" class="hint">Nenhuma foto selecionada.</div>
+
+            <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
+              <img id="photoPreview" alt="Prévia da foto do passeador" />
+            </div>
+
+            <button type="submit" id="registerSubmitBtn">Cadastrar</button>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <section class="operations-grid">
+      <section class="card grid-2">
+        <div>
+          <h2>Mapa automático</h2>
+          <label for="mapAddress">Endereço</label>
+          <input type="text" id="mapAddress" value="localhost" placeholder="Localização automática" />
+          <button id="loadMapBtn" type="button">Carregar mapa</button>
+          <p class="hint">
+            Ao abrir o app, ele tenta localizar você automaticamente. Se preferir, digite um endereço e clique em carregar mapa.
+          </p>
         </div>
 
-        <div id="requestList" class="list"></div>
-      </div>
+        <div class="map-wrap">
+          <iframe id="mapFrame" loading="lazy"></iframe>
+        </div>
+      </section>
 
-      <div>
-        <h2>Chat interno</h2>
-        <form id="messageForm" class="form">
-          <input type="number" id="chat_request_id" placeholder="ID da solicitação" required />
-          <input type="number" id="chat_sender_id" placeholder="ID de quem envia" required />
-          <textarea id="chat_text" placeholder="Mensagem"></textarea>
-          <button type="submit">Enviar mensagem</button>
-        </form>
-
-        <div class="toolbar">
-          <input type="number" id="chat_load_request_id" placeholder="ID da solicitação para carregar" />
-          <button id="loadMessagesBtn" type="button">Carregar mensagens</button>
+      <section class="card grid-3">
+        <div>
+          <h2>Cadastrar pet</h2>
+          <form id="petForm" class="form">
+            <input type="number" id="pet_owner_id" placeholder="ID do cliente" required />
+            <input type="text" id="pet_name" placeholder="Nome do pet" required />
+            <input type="text" id="pet_breed" placeholder="Raça" />
+            <select id="pet_size">
+              <option value="pequeno">Pequeno</option>
+              <option value="medio">Médio</option>
+              <option value="grande">Grande</option>
+            </select>
+            <input type="text" id="pet_notes" placeholder="Observações" />
+            <button type="submit">Salvar pet</button>
+          </form>
         </div>
 
-        <div id="chatList" class="list"></div>
-      </div>
-    </section>
+        <div>
+          <h2>Buscar passeadores</h2>
+          <form id="walkerSearchForm" class="form">
+            <input type="text" id="search_neighborhood" placeholder="Bairro" />
+            <input type="text" id="search_city" placeholder="Cidade" />
+            <button type="submit">Buscar</button>
+          </form>
 
-    <section class="card">
-      <h2>Ações rápidas</h2>
-      <div class="actions">
-        <input type="number" id="action_request_id" placeholder="ID da solicitação" />
-        <input type="number" id="action_actor_id" placeholder="ID do ator" />
-        <input type="number" id="action_amount" placeholder="Valor pagamento" value="35" step="0.01" />
-        <button data-action="accept" type="button">Aceitar</button>
-        <button data-action="decline" type="button">Recusar</button>
-        <button data-action="pay" type="button">Gerar pagamento fake</button>
-        <button data-action="confirm-payment" type="button">Confirmar pagamento</button>
-        <button data-action="complete" type="button">Concluir</button>
-      </div>
+          <div id="walkerList" class="list"></div>
+        </div>
 
-      <pre id="actionResult">Sem ações ainda.</pre>
-    </section>
+        <div>
+          <h2>Solicitar passeio</h2>
+          <form id="walkForm" class="form">
+            <input type="number" id="client_id" placeholder="ID do cliente" required />
+            <input type="number" id="walker_id" placeholder="ID do passeador" />
+            <input type="number" id="pet_id" placeholder="ID do pet" />
+            <input type="text" id="pickup_address" value="localhost" placeholder="Localização automática" />
+            <input type="text" id="walk_neighborhood" placeholder="Bairro" />
+            <input type="text" id="walk_city" placeholder="Cidade" />
+            <input type="datetime-local" id="scheduled_at" />
+            <input type="number" id="duration_minutes" placeholder="Duração" value="30" />
+            <input type="number" id="price" placeholder="Preço" value="35" step="0.01" />
+            <input type="text" id="walk_notes" placeholder="Observações" />
+            <button type="submit">Criar solicitação</button>
+          </form>
+        </div>
+      </section>
 
-    <section class="card">
-      <h2>Pagamento Mercado Pago</h2>
-      <div class="actions">
-        <input type="number" id="mp_request_id" placeholder="ID da solicitação (opcional)" />
-        <input type="number" id="mp_amount" placeholder="Valor" value="35" step="0.01" />
-        <button id="generateMpPaymentBtn" type="button">Gerar pagamento Mercado Pago</button>
-        <button id="openMpPaymentBtn" type="button">Abrir link de pagamento</button>
-      </div>
+      <section class="card grid-2">
+        <div>
+          <h2>Solicitações</h2>
+          <div class="toolbar">
+            <input type="number" id="request_user_id" placeholder="Filtrar por ID do usuário" />
+            <button id="loadRequestsBtn" type="button">Atualizar</button>
+            <button id="expireBtn" type="button">Expirar convites</button>
+          </div>
 
-      <pre id="mpPaymentResult">Nenhum pagamento gerado ainda.</pre>
+          <div id="requestList" class="list"></div>
+        </div>
+
+        <div>
+          <h2>Chat interno</h2>
+          <form id="messageForm" class="form">
+            <input type="number" id="chat_request_id" placeholder="ID da solicitação" required />
+            <input type="number" id="chat_sender_id" placeholder="ID de quem envia" required />
+            <textarea id="chat_text" placeholder="Mensagem"></textarea>
+            <button type="submit">Enviar mensagem</button>
+          </form>
+
+          <div class="toolbar">
+            <input type="number" id="chat_load_request_id" placeholder="ID da solicitação para carregar" />
+            <button id="loadMessagesBtn" type="button">Carregar mensagens</button>
+          </div>
+
+          <div id="chatList" class="list"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Ações rápidas</h2>
+        <div class="actions">
+          <input type="number" id="action_request_id" placeholder="ID da solicitação" />
+          <input type="number" id="action_actor_id" placeholder="ID do ator" />
+          <input type="number" id="action_amount" placeholder="Valor pagamento" value="35" step="0.01" />
+          <button data-action="accept" type="button">Aceitar</button>
+          <button data-action="decline" type="button">Recusar</button>
+          <button data-action="pay" type="button">Gerar pagamento fake</button>
+          <button data-action="confirm-payment" type="button">Confirmar pagamento</button>
+          <button data-action="complete" type="button">Concluir</button>
+        </div>
+
+        <pre id="actionResult">Sem ações ainda.</pre>
+      </section>
+
+      <section class="card">
+        <h2>Pagamento Mercado Pago</h2>
+        <div class="actions">
+          <input type="number" id="mp_request_id" placeholder="ID da solicitação (opcional)" />
+          <input type="number" id="mp_amount" placeholder="Valor" value="35" step="0.01" />
+          <button id="generateMpPaymentBtn" type="button">Gerar pagamento Mercado Pago</button>
+          <button id="openMpPaymentBtn" type="button">Abrir link de pagamento</button>
+        </div>
+
+        <pre id="mpPaymentResult">Nenhum pagamento gerado ainda.</pre>
+      </section>
     </section>
   </main>
 
