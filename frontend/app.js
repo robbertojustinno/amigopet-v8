@@ -3,9 +3,69 @@ const API = window.API_BASE_URL || "/api";
 const byId = (id) => document.getElementById(id);
 
 let uploadedPhotoUrl = null;
+let currentCoords = null;
 
 function pretty(obj) {
   return JSON.stringify(obj, null, 2);
+}
+
+function renderSession(user) {
+  if (!user) {
+    byId("sessionBox").textContent = "Nenhum";
+    return;
+  }
+
+  byId("sessionBox").textContent = [
+    `ID: ${user.id ?? "-"}`,
+    `Nome: ${user.full_name ?? "-"}`,
+    `E-mail: ${user.email ?? "-"}`,
+    `Perfil: ${user.role === "walker" ? "Passeador" : user.role === "client" ? "Cliente" : (user.role ?? "-")}`,
+    `Bairro: ${user.neighborhood || "-"}`,
+    `Cidade: ${user.city || "-"}`,
+    `Endereço: ${user.address || "-"}`,
+    `Online: ${user.online ? "Sim" : "Não"}`
+  ].join("\n");
+}
+
+function buildMapUrl(address) {
+  const q = encodeURIComponent(address);
+  return `https://www.openstreetmap.org/export/embed.html?search=${q}&marker=1&query=${q}`;
+}
+
+function buildCoordsMapUrl(lat, lng) {
+  const delta = 0.01;
+  const left = lng - delta;
+  const right = lng + delta;
+  const top = lat + delta;
+  const bottom = lat - delta;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${lat}%2C${lng}`;
+}
+
+function applyDetectedLocation(lat, lng) {
+  currentCoords = { lat, lng };
+  const label = `Localização atual (${lat.toFixed(5)}, ${lng.toFixed(5)})`;
+  ["address", "mapAddress", "pickup_address"].forEach((id) => {
+    const el = byId(id);
+    if (el) el.value = label;
+  });
+  byId("mapFrame").src = buildCoordsMapUrl(lat, lng);
+}
+
+function tryAutoLocate() {
+  if (!navigator.geolocation) {
+    loadMap();
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      applyDetectedLocation(position.coords.latitude, position.coords.longitude);
+    },
+    () => {
+      loadMap();
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+  );
 }
 
 
@@ -65,15 +125,16 @@ async function handlePhotoFile(file) {
   }
 }
 
-function buildMapUrl(address) {
-  const q = encodeURIComponent(address);
-  return `https://www.openstreetmap.org/export/embed.html?search=${q}&marker=1&query=${q}`;
-}
-
 function loadMap() {
   const address = byId("mapAddress").value.trim();
+  if (currentCoords && (!address || address === "localhost" || address.startsWith("Localização atual"))) {
+    byId("mapFrame").src = buildCoordsMapUrl(currentCoords.lat, currentCoords.lng);
+    return;
+  }
+  if (!address) return;
   byId("mapFrame").src = buildMapUrl(address);
 }
+
 
 async function api(path, options = {}) {
   const res = await fetch(`${API}${path}`, {
@@ -103,7 +164,7 @@ function renderList(targetId, items, formatter) {
 }
 
 byId("loadMapBtn").addEventListener("click", loadMap);
-window.addEventListener("load", loadMap);
+window.addEventListener("load", tryAutoLocate);
 
 byId("choosePhotoBtn").addEventListener("click", () => byId("profile_photo_file").click());
 byId("clearPhotoBtn").addEventListener("click", () => {
@@ -157,7 +218,7 @@ byId("registerForm").addEventListener("submit", async (e) => {
       role: byId("role").value,
       neighborhood: byId("neighborhood").value,
       city: byId("city").value,
-      address: byId("address").value,
+      address: byId("address").value === "localhost" ? "" : byId("address").value,
       profile_photo: byId("profile_photo").value.trim() || uploadedPhotoUrl || null
     };
     const data = await api("/users/register", {
@@ -186,7 +247,7 @@ byId("loginForm").addEventListener("submit", async (e) => {
       body: JSON.stringify(payload)
     });
     localStorage.setItem("session_user", JSON.stringify(data));
-    byId("sessionBox").textContent = pretty(data);
+    renderSession(data);
   } catch (err) {
     alert(err.message);
   }
@@ -239,7 +300,7 @@ byId("walkForm").addEventListener("submit", async (e) => {
       client_id: Number(byId("client_id").value),
       walker_id: byId("walker_id").value ? Number(byId("walker_id").value) : null,
       pet_id: byId("pet_id").value ? Number(byId("pet_id").value) : null,
-      pickup_address: byId("pickup_address").value,
+      pickup_address: byId("pickup_address").value === "localhost" ? "" : byId("pickup_address").value,
       neighborhood: byId("walk_neighborhood").value,
       city: byId("walk_city").value,
       scheduled_at: byId("scheduled_at").value || null,
@@ -357,5 +418,11 @@ document.querySelectorAll("[data-action]").forEach(btn => {
 });
 
 const session = localStorage.getItem("session_user");
-if (session) byId("sessionBox").textContent = session;
+if (session) {
+  try {
+    renderSession(JSON.parse(session));
+  } catch {
+    byId("sessionBox").textContent = session;
+  }
+}
 loadRequests();
