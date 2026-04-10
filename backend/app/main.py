@@ -26,7 +26,18 @@ storage_dir.mkdir(exist_ok=True)
 app.mount("/storage", StaticFiles(directory=str(storage_dir)), name="storage")
 app.include_router(router, prefix="/api")
 
-frontend_dir = Path(__file__).resolve().parents[2] / "frontend"
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+FRONTEND_DIR = BASE_DIR / "frontend"
+
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse(FRONTEND_DIR / "index.html")
 
 if frontend_dir.exists():
     app.mount("/assets", StaticFiles(directory=str(frontend_dir)), name="frontend-assets")
