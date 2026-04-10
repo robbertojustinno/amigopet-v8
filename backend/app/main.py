@@ -40,7 +40,7 @@ def serve_frontend():
     return FileResponse(FRONTEND_DIR / "index.html")
 
 if frontend_dir.exists():
-    app.mount("/assets", StaticFiles(directory=str(frontend_dir)), name="frontend-assets")
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 
     @app.get("/", include_in_schema=False)
     async def serve_frontend_index():
