@@ -2,9 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AmigoPet V8 REAL</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topbar">
@@ -23,10 +23,12 @@
           <input type="text" id="full_name" placeholder="Nome completo" required />
           <input type="email" id="email" placeholder="E-mail" required />
           <input type="password" id="password" placeholder="Senha" required />
+
           <select id="role" required>
             <option value="client">Cliente</option>
             <option value="walker">Passeador</option>
           </select>
+
           <input type="text" id="neighborhood" placeholder="Bairro" />
           <input type="text" id="city" placeholder="Cidade" />
           <input type="text" id="address" value="localhost" placeholder="Localização automática" />
@@ -74,10 +76,13 @@
       <div>
         <h2>Mapa automático</h2>
         <label for="mapAddress">Endereço</label>
-        <input type="text" id="mapAddress" value="localhost" placeholder="Localização automática"/>
+        <input type="text" id="mapAddress" value="localhost" placeholder="Localização automática" />
         <button id="loadMapBtn" type="button">Carregar mapa</button>
-        <p class="hint">Ao abrir o app, ele tenta localizar você automaticamente. Se preferir, digite um endereço e clique em carregar mapa.</p>
+        <p class="hint">
+          Ao abrir o app, ele tenta localizar você automaticamente. Se preferir, digite um endereço e clique em carregar mapa.
+        </p>
       </div>
+
       <div class="map-wrap">
         <iframe id="mapFrame" loading="lazy"></iframe>
       </div>
@@ -107,6 +112,7 @@
           <input type="text" id="search_city" placeholder="Cidade" />
           <button type="submit">Buscar</button>
         </form>
+
         <div id="walkerList" class="list"></div>
       </div>
 
@@ -136,6 +142,7 @@
           <button id="loadRequestsBtn" type="button">Atualizar</button>
           <button id="expireBtn" type="button">Expirar convites</button>
         </div>
+
         <div id="requestList" class="list"></div>
       </div>
 
@@ -147,10 +154,12 @@
           <textarea id="chat_text" placeholder="Mensagem"></textarea>
           <button type="submit">Enviar mensagem</button>
         </form>
+
         <div class="toolbar">
           <input type="number" id="chat_load_request_id" placeholder="ID da solicitação para carregar" />
           <button id="loadMessagesBtn" type="button">Carregar mensagens</button>
         </div>
+
         <div id="chatList" class="list"></div>
       </div>
     </section>
@@ -163,16 +172,24 @@
         <input type="number" id="action_amount" placeholder="Valor pagamento" value="35" step="0.01" />
         <button data-action="accept" type="button">Aceitar</button>
         <button data-action="decline" type="button">Recusar</button>
-        <button data-action="pay" type="button">Gerar pagamento</button>
+        <button data-action="pay" type="button">Gerar pagamento fake</button>
         <button data-action="confirm-payment" type="button">Confirmar pagamento</button>
         <button data-action="complete" type="button">Concluir</button>
       </div>
 
-      <div class="toolbar">
-        <button id="openPaymentBtn" type="button">Abrir pagamento Mercado Pago</button>
+      <pre id="actionResult">Sem ações ainda.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Pagamento Mercado Pago</h2>
+      <div class="actions">
+        <input type="number" id="mp_request_id" placeholder="ID da solicitação (opcional)" />
+        <input type="number" id="mp_amount" placeholder="Valor" value="35" step="0.01" />
+        <button id="generateMpPaymentBtn" type="button">Gerar pagamento Mercado Pago</button>
+        <button id="openMpPaymentBtn" type="button">Abrir link de pagamento</button>
       </div>
 
-      <pre id="actionResult">Sem ações ainda.</pre>
+      <pre id="mpPaymentResult">Nenhum pagamento gerado ainda.</pre>
     </section>
   </main>
 
