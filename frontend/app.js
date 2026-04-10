@@ -4,6 +4,7 @@ const byId = (id) => document.getElementById(id);
 
 let uploadedPhotoUrl = null;
 let currentCoords = null;
+let lastPaymentLink = null;
 
 function pretty(obj) {
   return JSON.stringify(obj, null, 2);
@@ -68,7 +69,6 @@ function tryAutoLocate() {
   );
 }
 
-
 function setPhotoStatus(message) {
   byId("photoUploadStatus").textContent = message;
 }
@@ -96,6 +96,7 @@ async function uploadProfilePhoto(file) {
   if (!file.type.startsWith("image/")) {
     throw new Error("Selecione um arquivo de imagem válido.");
   }
+
   const formData = new FormData();
   formData.append("file", file);
 
@@ -104,6 +105,7 @@ async function uploadProfilePhoto(file) {
     method: "POST",
     body: formData
   });
+
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error(data.detail || "Falha ao enviar a foto.");
@@ -135,16 +137,24 @@ function loadMap() {
   byId("mapFrame").src = buildMapUrl(address);
 }
 
-
 async function api(path, options = {}) {
+  const headers = options.headers ? { ...options.headers } : {};
+
+  if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(`${API}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options
+    ...options,
+    headers
   });
+
   const data = await res.json().catch(() => ({}));
+
   if (!res.ok) {
     throw new Error(data.detail || "Erro na requisição");
   }
+
   return data;
 }
 
@@ -155,6 +165,7 @@ function renderList(targetId, items, formatter) {
     box.innerHTML = `<div class="item">Sem registros.</div>`;
     return;
   }
+
   items.forEach(item => {
     const div = document.createElement("div");
     div.className = "item";
@@ -163,10 +174,33 @@ function renderList(targetId, items, formatter) {
   });
 }
 
+async function gerarPagamentoMercadoPago() {
+  try {
+    const data = await api("/pagamento", { method: "GET" });
+    lastPaymentLink = data.sandbox_link || data.link_pagamento || null;
+
+    byId("actionResult").textContent = pretty({
+      message: "Pagamento gerado com sucesso.",
+      link_pagamento: data.link_pagamento || null,
+      sandbox_link: data.sandbox_link || null
+    });
+
+    if (lastPaymentLink) {
+      window.open(lastPaymentLink, "_blank");
+    } else {
+      alert("O link de pagamento não foi retornado.");
+    }
+  } catch (err) {
+    byId("actionResult").textContent = err.message;
+    alert(err.message);
+  }
+}
+
 byId("loadMapBtn").addEventListener("click", loadMap);
 window.addEventListener("load", tryAutoLocate);
 
 byId("choosePhotoBtn").addEventListener("click", () => byId("profile_photo_file").click());
+
 byId("clearPhotoBtn").addEventListener("click", () => {
   uploadedPhotoUrl = null;
   byId("profile_photo").value = "";
@@ -181,6 +215,7 @@ byId("profile_photo_file").addEventListener("change", async (e) => {
 });
 
 const photoDropZone = byId("photoDropZone");
+
 ["dragenter", "dragover"].forEach((eventName) => {
   photoDropZone.addEventListener(eventName, (e) => {
     e.preventDefault();
@@ -188,6 +223,7 @@ const photoDropZone = byId("photoDropZone");
     photoDropZone.classList.add("dragover");
   });
 });
+
 ["dragleave", "drop"].forEach((eventName) => {
   photoDropZone.addEventListener(eventName, (e) => {
     e.preventDefault();
@@ -195,10 +231,12 @@ const photoDropZone = byId("photoDropZone");
     photoDropZone.classList.remove("dragover");
   });
 });
+
 photoDropZone.addEventListener("drop", async (e) => {
   const file = e.dataTransfer?.files?.[0];
   if (file) await handlePhotoFile(file);
 });
+
 photoDropZone.addEventListener("click", () => byId("profile_photo_file").click());
 
 byId("profile_photo").addEventListener("input", () => {
@@ -221,10 +259,12 @@ byId("registerForm").addEventListener("submit", async (e) => {
       address: byId("address").value === "localhost" ? "" : byId("address").value,
       profile_photo: byId("profile_photo").value.trim() || uploadedPhotoUrl || null
     };
+
     const data = await api("/users/register", {
       method: "POST",
       body: JSON.stringify(payload)
     });
+
     alert(`Conta criada com ID ${data.id}`);
     byId("registerForm").reset();
     uploadedPhotoUrl = null;
@@ -242,10 +282,12 @@ byId("loginForm").addEventListener("submit", async (e) => {
       email: byId("login_email").value,
       password: byId("login_password").value
     };
+
     const data = await api("/users/login", {
       method: "POST",
       body: JSON.stringify(payload)
     });
+
     localStorage.setItem("session_user", JSON.stringify(data));
     renderSession(data);
   } catch (err) {
@@ -263,10 +305,12 @@ byId("petForm").addEventListener("submit", async (e) => {
       size: byId("pet_size").value,
       notes: byId("pet_notes").value
     };
+
     const data = await api("/pets", {
       method: "POST",
       body: JSON.stringify(payload)
     });
+
     alert(`Pet salvo com ID ${data.id}`);
   } catch (err) {
     alert(err.message);
@@ -279,6 +323,7 @@ byId("walkerSearchForm").addEventListener("submit", async (e) => {
     const neighborhood = encodeURIComponent(byId("search_neighborhood").value || "");
     const city = encodeURIComponent(byId("search_city").value || "");
     const data = await api(`/walkers?neighborhood=${neighborhood}&city=${city}`);
+
     renderList("walkerList", data, (item) => `
       <strong>${item.full_name}</strong><br>
       ID: ${item.id}<br>
@@ -308,121 +353,12 @@ byId("walkForm").addEventListener("submit", async (e) => {
       price: Number(byId("price").value || 0),
       notes: byId("walk_notes").value
     };
+
     const data = await api("/walk-requests", {
       method: "POST",
       body: JSON.stringify(payload)
     });
+
     alert(`Solicitação criada com ID ${data.id}`);
     await loadRequests();
-  } catch (err) {
-    alert(err.message);
-  }
-});
-
-async function loadRequests() {
-  try {
-    const userId = byId("request_user_id").value;
-    const q = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
-    const data = await api(`/walk-requests${q}`);
-    renderList("requestList", data, (item) => {
-      const statusTag = `<span class="tag">${item.status}</span>`;
-      const payTag = `<span class="tag">${item.payment_status}</span>`;
-      return `
-        <strong>Solicitação #${item.id}</strong><br>
-        Cliente: ${item.client_id} | Passeador: ${item.walker_id ?? "-"} | Pet: ${item.pet_id ?? "-"}<br>
-        Endereço: ${item.pickup_address}<br>
-        Cidade/Bairro: ${item.city || "-"} / ${item.neighborhood || "-"}<br>
-        Duração: ${item.duration_minutes} min | Valor: R$ ${item.price}<br>
-        ${statusTag} ${payTag}<br>
-        <small>${item.notes || ""}</small>
-      `;
-    });
-  } catch (err) {
-    alert(err.message);
-  }
-}
-
-byId("loadRequestsBtn").addEventListener("click", loadRequests);
-
-byId("expireBtn").addEventListener("click", async () => {
-  try {
-    const data = await api("/maintenance/expire-invites", { method: "POST" });
-    alert(`Convites expirados: ${data.count}`);
-    await loadRequests();
-  } catch (err) {
-    alert(err.message);
-  }
-});
-
-byId("messageForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  try {
-    const payload = {
-      walk_request_id: Number(byId("chat_request_id").value),
-      sender_id: Number(byId("chat_sender_id").value),
-      text: byId("chat_text").value
-    };
-    await api("/messages", { method: "POST", body: JSON.stringify(payload) });
-    byId("chat_text").value = "";
-    await loadMessages();
-  } catch (err) {
-    alert(err.message);
-  }
-});
-
-async function loadMessages() {
-  try {
-    const requestId = byId("chat_load_request_id").value || byId("chat_request_id").value;
-    if (!requestId) throw new Error("Informe o ID da solicitação.");
-    const data = await api(`/messages/${requestId}`);
-    renderList("chatList", data, (item) => `
-      <strong>Usuário ${item.sender_id}</strong><br>
-      ${item.text}
-    `);
-  } catch (err) {
-    alert(err.message);
-  }
-}
-
-byId("loadMessagesBtn").addEventListener("click", loadMessages);
-
-document.querySelectorAll("[data-action]").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    const action = btn.getAttribute("data-action");
-    const requestId = Number(byId("action_request_id").value);
-    const actorId = Number(byId("action_actor_id").value);
-    const amount = Number(byId("action_amount").value || 0);
-    if (!requestId || !actorId) {
-      alert("Informe ID da solicitação e ID do ator.");
-      return;
-    }
-    try {
-      let data;
-      if (action === "pay") {
-        data = await api(`/walk-requests/${requestId}/pay`, {
-          method: "POST",
-          body: JSON.stringify({ actor_id: actorId, amount })
-        });
-      } else {
-        data = await api(`/walk-requests/${requestId}/${action}`, {
-          method: "POST",
-          body: JSON.stringify({ actor_id: actorId })
-        });
-      }
-      byId("actionResult").textContent = pretty(data);
-      await loadRequests();
-    } catch (err) {
-      byId("actionResult").textContent = err.message;
-    }
-  });
-});
-
-const session = localStorage.getItem("session_user");
-if (session) {
-  try {
-    renderSession(JSON.parse(session));
-  } catch {
-    byId("sessionBox").textContent = session;
-  }
-}
-loadRequests();
+ 
