@@ -280,3 +280,36 @@ def expire_invites(db: Session = Depends(get_db)):
             redis_service.publish(f"client:{item.client_id}", {"type": "walk_expired", "request_id": item.id})
     db.commit()
     return {"expired_ids": expired_ids, "count": len(expired_ids)}
+import requests
+import os
+
+@router.post("/pagamento")
+def criar_pagamento():
+    access_token = os.getenv("MERCADO_PAGO_ACCESS_TOKEN")
+
+    url = "https://api.mercadopago.com/checkout/preferences"
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    body = {
+        "items": [
+            {
+                "title": "Passeio com Pet",
+                "quantity": 1,
+                "currency_id": "BRL",
+                "unit_price": 20.0
+            }
+        ]
+    }
+
+    response = requests.post(url, json=body, headers=headers)
+
+    data = response.json()
+
+    return {
+        "link_pagamento": data.get("init_point"),
+        "sandbox_link": data.get("sandbox_init_point")
+    }
