@@ -8,15 +8,15 @@ let latestMercadoPagoLink = null;
 let currentAccessTab = "client";
 let currentUser = null;
 
-function pretty(obj) {
-  return JSON.stringify(obj, null, 2);
-}
-
 function showScreen(screenId) {
   document.querySelectorAll(".screen").forEach((screen) => {
     screen.classList.remove("active");
   });
   byId(screenId)?.classList.add("active");
+}
+
+function pretty(obj) {
+  return JSON.stringify(obj, null, 2);
 }
 
 function updateHeaderState() {
@@ -32,45 +32,49 @@ function updateHeaderState() {
 
 function renderSession(user) {
   currentUser = user || null;
-  const sessionBox = byId("sessionBox");
 
-  if (!sessionBox) return;
+  const sessionBox = byId("sessionBox");
+  if (sessionBox) {
+    if (!user) {
+      sessionBox.textContent = "Nenhum";
+    } else {
+      sessionBox.textContent = [
+        `ID: ${user.id ?? "-"}`,
+        `Nome: ${user.full_name ?? "-"}`,
+        `E-mail: ${user.email ?? "-"}`,
+        `Perfil: ${
+          user.role === "walker"
+            ? "Passeador"
+            : user.role === "client"
+              ? "Cliente"
+              : user.role === "admin"
+                ? "Admin"
+                : (user.role ?? "-")
+        }`,
+        `Bairro: ${user.neighborhood || "-"}`,
+        `Cidade: ${user.city || "-"}`,
+        `Endereço: ${user.address || "-"}`,
+        `Online: ${user.online ? "Sim" : "Não"}`
+      ].join("\n");
+    }
+  }
 
   if (!user) {
-    sessionBox.textContent = "Nenhum";
     updateHeaderState();
     return;
   }
 
-  sessionBox.textContent = [
-    `ID: ${user.id ?? "-"}`,
-    `Nome: ${user.full_name ?? "-"}`,
-    `E-mail: ${user.email ?? "-"}`,
-    `Perfil: ${
-      user.role === "walker"
-        ? "Passeador"
-        : user.role === "client"
-          ? "Cliente"
-          : user.role === "admin"
-            ? "Admin"
-            : (user.role ?? "-")
-    }`,
-    `Bairro: ${user.neighborhood || "-"}`,
-    `Cidade: ${user.city || "-"}`,
-    `Endereço: ${user.address || "-"}`,
-    `Online: ${user.online ? "Sim" : "Não"}`
-  ].join("\n");
-
   if (user.role === "admin") {
     showScreen("adminDashboard");
+    byId("adminSessionInfo") && (byId("adminSessionInfo").textContent = `${user.full_name || "Admin"} conectado`);
     loadAdminDashboard();
   } else if (user.role === "walker") {
     showScreen("walkerDashboard");
-    byId("walkerSessionInfo").textContent = `${user.full_name || "Passeador"} conectado`;
+    byId("walkerSessionInfo") && (byId("walkerSessionInfo").textContent = `${user.full_name || "Passeador"} conectado`);
     loadRequests();
   } else {
     showScreen("clientDashboard");
-    byId("clientSessionInfo").textContent = `${user.full_name || "Cliente"} conectado`;
+    byId("clientSessionInfo") && (byId("clientSessionInfo").textContent = `${user.full_name || "Cliente"} conectado`);
     loadRequests();
   }
 
@@ -177,7 +181,6 @@ async function uploadProfilePhoto(file) {
   });
 
   const data = await res.json().catch(() => ({}));
-
   if (!res.ok) {
     throw new Error(data.detail || "Falha ao enviar a foto.");
   }
@@ -234,7 +237,7 @@ async function api(path, options = {}) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data.detail || "Erro na requisição");
+    throw new Error(data.detail || data.message || "Erro na requisição");
   }
 
   return data;
@@ -323,8 +326,7 @@ function renderPaymentBox(data) {
   const box = byId("paymentStatusBox");
   if (!box) return;
 
-  const link = data.sandbox_link || data.link_pagamento || "";
-  latestMercadoPagoLink = link || null;
+  latestMercadoPagoLink = data.sandbox_link || data.link_pagamento || null;
 
   box.innerHTML = `
     <div class="payment-status-title">Pagamento gerado com sucesso</div>
@@ -337,10 +339,10 @@ function renderPaymentBox(data) {
 async function loadAdminDashboard() {
   try {
     const data = await api("/admin/dashboard");
-    byId("metricTotalUsers").textContent = data.total_users ?? 0;
-    byId("metricClients").textContent = data.total_clients ?? 0;
-    byId("metricWalkers").textContent = data.total_walkers ?? 0;
-    byId("metricRevenue").textContent = `R$ ${Number(data.total_revenue || 0).toFixed(2)}`;
+    if (byId("metricTotalUsers")) byId("metricTotalUsers").textContent = data.total_users ?? 0;
+    if (byId("metricClients")) byId("metricClients").textContent = data.total_clients ?? 0;
+    if (byId("metricWalkers")) byId("metricWalkers").textContent = data.total_walkers ?? 0;
+    if (byId("metricRevenue")) byId("metricRevenue").textContent = `R$ ${Number(data.total_revenue || 0).toFixed(2)}`;
 
     const users = await api("/admin/users");
     renderList("adminUsersList", users, (item) => `
@@ -477,31 +479,38 @@ byId("registerForm")?.addEventListener("submit", async (e) => {
 byId("loginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = byId("login_email")?.value || "";
+  const email = byId("login_email")?.value?.trim() || "";
   const password = byId("login_password")?.value || "";
 
-  if (currentAccessTab === "admin") {
-    try {
-      const data = await api("/admin/login", {
+  if (!email || !password) {
+    alert("Preencha e-mail e senha.");
+    return;
+  }
+
+  try {
+    let data;
+
+    if (currentAccessTab === "admin") {
+      data = await api("/admin/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password })
+      });
+    } else {
+      data = await api("/users/login", {
         method: "POST",
         body: JSON.stringify({ email, password })
       });
 
-      localStorage.setItem("session_user", JSON.stringify(data));
-      renderSession(data);
-      alert("Login admin realizado.");
-      return;
-    } catch (err) {
-      alert(err.message);
-      return;
-    }
-  }
+      if (currentAccessTab === "client" && data.role !== "client") {
+        alert("Esse login não pertence a um cliente.");
+        return;
+      }
 
-  try {
-    const data = await api("/users/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password })
-    });
+      if (currentAccessTab === "walker" && data.role !== "walker") {
+        alert("Esse login não pertence a um passeador.");
+        return;
+      }
+    }
 
     localStorage.setItem("session_user", JSON.stringify(data));
     renderSession(data);
@@ -623,7 +632,6 @@ async function loadRequests() {
 }
 
 byId("loadRequestsBtn")?.addEventListener("click", loadRequests);
-
 byId("refreshAdminBtn")?.addEventListener("click", loadAdminDashboard);
 
 byId("expireBtn")?.addEventListener("click", async () => {
@@ -722,7 +730,6 @@ async function generateMercadoPagoPayment() {
 
     const path = query.toString() ? `/pagamento?${query.toString()}` : "/pagamento";
     const data = await api(path, { method: "GET" });
-
     renderPaymentBox(data);
   } catch (err) {
     alert(err.message);
@@ -750,6 +757,7 @@ if (session) {
     renderSession(JSON.parse(session));
   } catch {
     renderSession(null);
+    showScreen("landingScreen");
   }
 } else {
   renderSession(null);
