@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AmigoPet Pro</title>
+  <title>AmigoPet Pro V10</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -16,192 +16,216 @@
       </div>
     </div>
 
-    <nav class="top-actions">
-      <button type="button" class="ghost-btn" id="goPlansBtn">Planos</button>
-      <button type="button" class="ghost-btn" id="goLoginBtn">Entrar</button>
-      <button type="button" class="primary-btn" id="goRegisterBtn">Criar conta</button>
-    </nav>
+    <div class="top-actions">
+      <button type="button" class="ghost-btn" id="goHomeBtn">Início</button>
+      <button type="button" class="ghost-btn hidden" id="logoutBtn">Sair</button>
+    </div>
   </header>
 
   <main class="page">
-    <section class="hero-grid">
-      <div class="hero-card">
-        <span class="hero-badge">V2 comercial pronta para começar</span>
-        <h2>Transforme sua ideia em um serviço real de passeios para pets.</h2>
-        <p class="hero-text">
-          Com agendamento por horário, planos, histórico, avaliação por estrelas, rota no mapa e área financeira simples.
-        </p>
+    <!-- TELA INICIAL -->
+    <section id="landingScreen" class="screen active">
+      <section class="hero-grid">
+        <div class="hero-card">
+          <span class="hero-badge">V10 profissional em evolução</span>
+          <h2>Transforme sua ideia em um serviço real de passeios para pets.</h2>
+          <p class="hero-text">
+            Plataforma com cliente, passeador e admin separados, pagamento integrado e base pronta para virar app.
+          </p>
 
-        <div class="hero-buttons">
-          <button type="button" class="primary-btn" id="heroStartBtn">Começar agora</button>
-          <button type="button" class="ghost-btn" id="heroPlansBtn">Ver preços e planos</button>
+          <div class="hero-buttons">
+            <button type="button" class="primary-btn" id="startNowBtn">Começar agora</button>
+            <button type="button" class="ghost-btn" id="seeAccessBtn">Ver acessos</button>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-box">
+              <strong>3</strong>
+              <span>Painéis separados</span>
+            </div>
+            <div class="stat-box">
+              <strong>Pix</strong>
+              <span>Pagamento preparado</span>
+            </div>
+            <div class="stat-box">
+              <strong>Mapa</strong>
+              <span>Fluxo pronto para evoluir</span>
+            </div>
+          </div>
         </div>
 
-        <div class="hero-stats">
-          <div class="stat-box">
-            <strong>24h</strong>
-            <span>Pronto para evoluir aos poucos</span>
+        <div class="hero-card">
+          <h3>Identidade da marca</h3>
+          <div class="brand-showcase">
+            <div class="brand-showcase-logo">🐶 💚</div>
+            <h2>AmigoPet Pro</h2>
+            <p>Passeios, confiança e cuidado em cada rota.</p>
           </div>
-          <div class="stat-box">
-            <strong>3</strong>
-            <span>Perfis principais de acesso</span>
-          </div>
-          <div class="stat-box">
-            <strong>5★</strong>
-            <span>Sistema de reputação para passeadores</span>
-          </div>
+          <p class="hero-note">
+            Agora a estrutura já fica pronta para separar os acessos e evoluir até APK.
+          </p>
+        </div>
+      </section>
+
+      <section class="access-section" id="accessSection">
+        <div class="section-head">
+          <h2>Escolha seu acesso</h2>
+          <p>Cada perfil entra em sua própria área.</p>
+        </div>
+
+        <div class="access-grid">
+          <article class="access-card">
+            <div class="access-icon">🛠️</div>
+            <h3>Admin</h3>
+            <p>Controle de usuários, pagamentos, solicitações e visão do negócio.</p>
+            <button type="button" class="dark-btn access-open-btn" data-target="admin">Entrar como Admin</button>
+          </article>
+
+          <article class="access-card">
+            <div class="access-icon">🐾</div>
+            <h3>Cliente</h3>
+            <p>Solicita passeio, acompanha status, paga e conversa no chat.</p>
+            <button type="button" class="primary-btn access-open-btn" data-target="client">Entrar como Cliente</button>
+          </article>
+
+          <article class="access-card">
+            <div class="access-icon">🚶</div>
+            <h3>Passeador</h3>
+            <p>Recebe pedidos, aceita corridas, acompanha rota e conclui passeios.</p>
+            <button type="button" class="secondary-btn access-open-btn" data-target="walker">Entrar como Passeador</button>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <!-- LOGIN -->
+    <section id="loginScreen" class="screen">
+      <div class="panel-card auth-card">
+        <div class="auth-head">
+          <h2 id="loginScreenTitle">Entrar</h2>
+          <p id="loginScreenSubtitle">Acesse sua área</p>
+        </div>
+
+        <form id="loginForm" class="form">
+          <input type="email" id="login_email" placeholder="E-mail" required />
+          <input type="password" id="login_password" placeholder="Senha" required />
+          <button type="submit" id="loginSubmitBtn">Entrar</button>
+        </form>
+
+        <div class="auth-actions">
+          <button type="button" class="ghost-btn" id="backToHomeBtn">Voltar</button>
+          <button type="button" class="ghost-btn hidden" id="goToRegisterBtn">Criar conta</button>
         </div>
       </div>
+    </section>
 
-      <div class="hero-card">
-        <h3>Logo provisonal da marca</h3>
-        <div class="brand-showcase">
-          <div class="brand-showcase-logo">🐶 💚</div>
-          <h2>AmigoPet Pro</h2>
-          <p>Passeios, confiança e cuidado em cada rota.</p>
+    <!-- CADASTRO -->
+    <section id="registerScreen" class="screen">
+      <div class="panel-card auth-card">
+        <div class="auth-head">
+          <h2 id="registerScreenTitle">Criar conta</h2>
+          <p id="registerScreenSubtitle">Cadastre-se para começar</p>
         </div>
-        <p class="hero-note">
-          Você pode usar essa identidade agora e depois trocar por uma logo definitiva sem mexer na estrutura do sistema.
-        </p>
-      </div>
-    </section>
 
-    <section class="feature-grid">
-      <div class="feature-card">
-        <h3>Agendamento</h3>
-        <p>O cliente escolhe endereço, tipo de passeio e data/hora.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Operação</h3>
-        <p>O sistema encontra o passeador mais próximo e mostra rota no mapa.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Crescimento</h3>
-        <p>Você acompanha pedidos, receita, repasses e desempenho da equipe.</p>
-      </div>
-    </section>
+        <form id="registerForm" class="form">
+          <input type="text" id="full_name" placeholder="Nome completo" required />
+          <input type="email" id="email" placeholder="E-mail" required />
+          <input type="password" id="password" placeholder="Senha" required />
 
-    <section class="access-section" id="accessSection">
-      <div class="section-head">
-        <h2>Escolha seu tipo de acesso</h2>
-        <p>Entradas separadas para administração, clientes e passeadores.</p>
-      </div>
+          <select id="role" required>
+            <option value="client">Cliente</option>
+            <option value="walker">Passeador</option>
+          </select>
 
-      <div class="access-grid">
-        <article class="access-card admin-card">
-          <div class="access-icon">🛠️</div>
-          <h3>Admin</h3>
-          <p>Controle do sistema, usuários, solicitações, repasses e visão geral do negócio.</p>
-          <ul class="access-list">
-            <li>Gerenciar usuários</li>
-            <li>Ver solicitações</li>
-            <li>Monitorar pagamentos</li>
-          </ul>
-          <button type="button" class="dark-btn" data-tab-target="admin">Entrar como Admin</button>
-        </article>
+          <input type="text" id="neighborhood" placeholder="Bairro" />
+          <input type="text" id="city" placeholder="Cidade" />
+          <input type="text" id="address" value="localhost" placeholder="Localização automática" />
+          <input type="text" id="profile_photo" placeholder="Link da foto do passeador ou envie um arquivo" />
 
-        <article class="access-card client-card">
-          <div class="access-icon">🐾</div>
-          <h3>Cliente</h3>
-          <p>Solicite passeios, acompanhe o pedido, converse no chat e faça o pagamento.</p>
-          <ul class="access-list">
-            <li>Solicitar passeio</li>
-            <li>Acompanhar atendimento</li>
-            <li>Pagar pelo app</li>
-          </ul>
-          <button type="button" class="primary-btn" data-tab-target="client">Entrar como Cliente</button>
-        </article>
-
-        <article class="access-card walker-card">
-          <div class="access-icon">🚶</div>
-          <h3>Passeador</h3>
-          <p>Receba solicitações, aceite corridas, visualize rota e conclua os passeios.</p>
-          <ul class="access-list">
-            <li>Receber convites</li>
-            <li>Ficar online/offline</li>
-            <li>Concluir passeios</li>
-          </ul>
-          <button type="button" class="secondary-btn" data-tab-target="walker">Entrar como Passeador</button>
-        </article>
-      </div>
-    </section>
-
-    <section class="auth-panel" id="authPanel">
-      <div class="tabs">
-        <button type="button" class="tab-btn active" data-tab="client">Cliente</button>
-        <button type="button" class="tab-btn" data-tab="walker">Passeador</button>
-        <button type="button" class="tab-btn" data-tab="admin">Admin</button>
-      </div>
-
-      <div class="auth-layout">
-        <section class="panel-card">
-          <h2 id="loginTitle">Entrar como Cliente</h2>
-          <form id="loginForm" class="form">
-            <input type="email" id="login_email" placeholder="E-mail" required />
-            <input type="password" id="login_password" placeholder="Senha" required />
-            <button type="submit" id="loginSubmitBtn">Entrar</button>
-          </form>
-
-          <div class="status-box">
-            <strong>Usuário logado:</strong>
-            <pre id="sessionBox">Nenhum</pre>
+          <div class="upload-box" id="photoDropZone">
+            <input type="file" id="profile_photo_file" accept="image/*" hidden />
+            <div class="upload-box-inner">
+              <strong>Foto do passeador</strong>
+              <span>Arraste a imagem aqui, clique para escolher da pasta, ou cole um link no campo acima.</span>
+            </div>
           </div>
-        </section>
 
-        <section class="panel-card" id="registerPanel">
-          <h2 id="registerTitle">Criar conta de Cliente</h2>
-          <form id="registerForm" class="form">
-            <input type="text" id="full_name" placeholder="Nome completo" required />
-            <input type="email" id="email" placeholder="E-mail" required />
-            <input type="password" id="password" placeholder="Senha" required />
+          <div class="upload-actions">
+            <button type="button" id="choosePhotoBtn" class="secondary-btn">Escolher foto da pasta</button>
+            <button type="button" id="clearPhotoBtn" class="secondary-btn">Limpar foto</button>
+          </div>
 
-            <select id="role" required>
-              <option value="client">Cliente</option>
-              <option value="walker">Passeador</option>
-            </select>
+          <div id="photoUploadStatus" class="hint">Nenhuma foto selecionada.</div>
 
-            <input type="text" id="neighborhood" placeholder="Bairro" />
-            <input type="text" id="city" placeholder="Cidade" />
-            <input type="text" id="address" value="localhost" placeholder="Localização automática" />
-            <input type="text" id="profile_photo" placeholder="Link da foto do passeador ou envie um arquivo" />
+          <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
+            <img id="photoPreview" alt="Prévia da foto do passeador" />
+          </div>
 
-            <div class="upload-box" id="photoDropZone">
-              <input type="file" id="profile_photo_file" accept="image/*" hidden />
-              <div class="upload-box-inner">
-                <strong>Foto do passeador</strong>
-                <span>Arraste a imagem aqui, clique para escolher da pasta, ou cole um link no campo acima.</span>
-              </div>
-            </div>
+          <button type="submit" id="registerSubmitBtn">Cadastrar</button>
+        </form>
 
-            <div class="upload-actions">
-              <button type="button" id="choosePhotoBtn" class="secondary-btn">Escolher foto da pasta</button>
-              <button type="button" id="clearPhotoBtn" class="secondary-btn">Limpar foto</button>
-            </div>
-
-            <div id="photoUploadStatus" class="hint">Nenhuma foto selecionada.</div>
-
-            <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
-              <img id="photoPreview" alt="Prévia da foto do passeador" />
-            </div>
-
-            <button type="submit" id="registerSubmitBtn">Cadastrar</button>
-          </form>
-        </section>
+        <div class="auth-actions">
+          <button type="button" class="ghost-btn" id="backToLoginBtn">Voltar para login</button>
+        </div>
       </div>
     </section>
 
-    <section class="operations-grid">
+    <!-- PAINEL ADMIN -->
+    <section id="adminDashboard" class="screen">
+      <div class="dashboard-head">
+        <div>
+          <h2>Painel Admin</h2>
+          <p>Controle geral do sistema</p>
+        </div>
+        <div class="status-pill" id="adminSessionInfo">Admin conectado</div>
+      </div>
+
+      <section class="dashboard-grid dashboard-grid-4">
+        <div class="metric-card">
+          <span>Total de usuários</span>
+          <strong id="metricTotalUsers">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>Clientes</span>
+          <strong id="metricClients">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>Passeadores</span>
+          <strong id="metricWalkers">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>Receita</span>
+          <strong id="metricRevenue">R$ 0</strong>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-head-inline">
+          <h3>Usuários</h3>
+          <button type="button" class="ghost-btn" id="refreshAdminBtn">Atualizar painel</button>
+        </div>
+        <div id="adminUsersList" class="list"></div>
+      </section>
+    </section>
+
+    <!-- PAINEL CLIENTE -->
+    <section id="clientDashboard" class="screen">
+      <div class="dashboard-head">
+        <div>
+          <h2>Painel do Cliente</h2>
+          <p>Peça passeios, acompanhe e pague</p>
+        </div>
+        <div class="status-pill" id="clientSessionInfo">Cliente conectado</div>
+      </div>
+
       <section class="card grid-2">
         <div>
-          <h2>Mapa automático</h2>
+          <h3>Mapa automático</h3>
           <label for="mapAddress">Endereço</label>
           <input type="text" id="mapAddress" value="localhost" placeholder="Localização automática" />
           <button id="loadMapBtn" type="button">Carregar mapa</button>
-          <p class="hint">
-            Ao abrir o app, ele tenta localizar você automaticamente. Se preferir, digite um endereço e clique em carregar mapa.
-          </p>
+          <p class="hint">Ao abrir o app, ele tenta localizar você automaticamente.</p>
         </div>
-
         <div class="map-wrap">
           <iframe id="mapFrame" loading="lazy"></iframe>
         </div>
@@ -209,7 +233,7 @@
 
       <section class="card grid-3">
         <div>
-          <h2>Cadastrar pet</h2>
+          <h3>Cadastrar pet</h3>
           <form id="petForm" class="form">
             <input type="number" id="pet_owner_id" placeholder="ID do cliente" required />
             <input type="text" id="pet_name" placeholder="Nome do pet" required />
@@ -225,18 +249,17 @@
         </div>
 
         <div>
-          <h2>Buscar passeadores</h2>
+          <h3>Buscar passeadores</h3>
           <form id="walkerSearchForm" class="form">
             <input type="text" id="search_neighborhood" placeholder="Bairro" />
             <input type="text" id="search_city" placeholder="Cidade" />
             <button type="submit">Buscar</button>
           </form>
-
           <div id="walkerList" class="list"></div>
         </div>
 
         <div>
-          <h2>Solicitar passeio</h2>
+          <h3>Solicitar passeio</h3>
           <form id="walkForm" class="form">
             <input type="number" id="client_id" placeholder="ID do cliente" required />
             <input type="number" id="walker_id" placeholder="ID do passeador" />
@@ -253,45 +276,66 @@
         </div>
       </section>
 
-      <section class="card grid-2">
-        <div>
-          <h2>Solicitações</h2>
-          <div class="toolbar">
-            <input type="number" id="request_user_id" placeholder="Filtrar por ID do usuário" />
-            <button id="loadRequestsBtn" type="button">Atualizar</button>
-            <button id="expireBtn" type="button">Expirar convites</button>
-          </div>
+      <section class="card">
+        <div class="section-head-inline">
+          <h3>Minhas solicitações</h3>
+          <button id="loadRequestsBtn" type="button" class="ghost-btn">Atualizar</button>
+        </div>
+        <input type="number" id="request_user_id" placeholder="Filtrar por ID do usuário" />
+        <div id="requestList" class="list"></div>
+      </section>
 
-          <div id="requestList" class="list"></div>
+      <section class="card">
+        <h3>Pagamento Mercado Pago</h3>
+        <div class="actions">
+          <input type="number" id="mp_request_id" placeholder="ID da solicitação (opcional)" />
+          <input type="number" id="mp_amount" placeholder="Valor" value="35" step="0.01" />
+          <button id="generateMpPaymentBtn" type="button">Gerar pagamento</button>
+          <button id="openMpPaymentBtn" type="button">Abrir pagamento</button>
         </div>
 
-        <div>
-          <h2>Chat interno</h2>
-          <form id="messageForm" class="form">
-            <input type="number" id="chat_request_id" placeholder="ID da solicitação" required />
-            <input type="number" id="chat_sender_id" placeholder="ID de quem envia" required />
-            <textarea id="chat_text" placeholder="Mensagem"></textarea>
-            <button type="submit">Enviar mensagem</button>
-          </form>
-
-          <div class="toolbar">
-            <input type="number" id="chat_load_request_id" placeholder="ID da solicitação para carregar" />
-            <button id="loadMessagesBtn" type="button">Carregar mensagens</button>
-          </div>
-
-          <div id="chatList" class="list"></div>
+        <div class="payment-clean-box" id="paymentStatusBox">
+          <div class="payment-status-title">Nenhum pagamento gerado ainda.</div>
+          <div class="payment-status-subtitle">Quando você gerar um pagamento, ele vai aparecer aqui de forma limpa.</div>
         </div>
       </section>
 
       <section class="card">
-        <h2>Ações rápidas</h2>
+        <h3>Chat interno</h3>
+        <form id="messageForm" class="form">
+          <input type="number" id="chat_request_id" placeholder="ID da solicitação" required />
+          <input type="number" id="chat_sender_id" placeholder="ID de quem envia" required />
+          <textarea id="chat_text" placeholder="Mensagem"></textarea>
+          <button type="submit">Enviar mensagem</button>
+        </form>
+
+        <div class="toolbar">
+          <input type="number" id="chat_load_request_id" placeholder="ID da solicitação para carregar" />
+          <button id="loadMessagesBtn" type="button">Carregar mensagens</button>
+        </div>
+
+        <div id="chatList" class="list"></div>
+      </section>
+    </section>
+
+    <!-- PAINEL PASSEADOR -->
+    <section id="walkerDashboard" class="screen">
+      <div class="dashboard-head">
+        <div>
+          <h2>Painel do Passeador</h2>
+          <p>Receba pedidos, aceite corridas e acompanhe rotas</p>
+        </div>
+        <div class="status-pill" id="walkerSessionInfo">Passeador conectado</div>
+      </div>
+
+      <section class="card">
+        <h3>Solicitações e ações</h3>
         <div class="actions">
           <input type="number" id="action_request_id" placeholder="ID da solicitação" />
           <input type="number" id="action_actor_id" placeholder="ID do ator" />
           <input type="number" id="action_amount" placeholder="Valor pagamento" value="35" step="0.01" />
           <button data-action="accept" type="button">Aceitar</button>
           <button data-action="decline" type="button">Recusar</button>
-          <button data-action="pay" type="button">Gerar pagamento fake</button>
           <button data-action="confirm-payment" type="button">Confirmar pagamento</button>
           <button data-action="complete" type="button">Concluir</button>
         </div>
@@ -300,15 +344,11 @@
       </section>
 
       <section class="card">
-        <h2>Pagamento Mercado Pago</h2>
-        <div class="actions">
-          <input type="number" id="mp_request_id" placeholder="ID da solicitação (opcional)" />
-          <input type="number" id="mp_amount" placeholder="Valor" value="35" step="0.01" />
-          <button id="generateMpPaymentBtn" type="button">Gerar pagamento Mercado Pago</button>
-          <button id="openMpPaymentBtn" type="button">Abrir link de pagamento</button>
+        <div class="section-head-inline">
+          <h3>Mensagens</h3>
+          <button id="expireBtn" type="button" class="ghost-btn">Expirar convites</button>
         </div>
-
-        <pre id="mpPaymentResult">Nenhum pagamento gerado ainda.</pre>
+        <div id="walkerRequestsInfo" class="list"></div>
       </section>
     </section>
   </main>
