@@ -132,3 +132,57 @@ button:hover { opacity: .92; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .topbar { flex-direction: column; align-items: flex-start; }
 }
+
+
+.upload-box {
+  border: 1px dashed #475569;
+  border-radius: 14px;
+  background: #0b1220;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.upload-box:hover,
+.upload-box.dragover {
+  border-color: var(--accent2);
+  background: #0d1728;
+  transform: translateY(-1px);
+}
+.upload-box-inner {
+  display: grid;
+  gap: 6px;
+  text-align: center;
+  color: var(--muted);
+}
+.upload-box-inner strong {
+  color: var(--text);
+}
+.upload-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.secondary-btn {
+  background: #132033;
+  border: 1px solid #334155;
+  color: var(--text);
+}
+.secondary-btn:hover {
+  background: #17283f;
+}
+.photo-preview-wrap {
+  border: 1px solid #273449;
+  border-radius: 14px;
+  padding: 10px;
+  background: #08101c;
+}
+.photo-preview-wrap img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+.hidden {
+  display: none;
+}

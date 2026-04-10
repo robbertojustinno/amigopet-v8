@@ -2,8 +2,67 @@ const API = window.API_BASE_URL || "/api";
 
 const byId = (id) => document.getElementById(id);
 
+let uploadedPhotoUrl = null;
+
 function pretty(obj) {
   return JSON.stringify(obj, null, 2);
+}
+
+
+function setPhotoStatus(message) {
+  byId("photoUploadStatus").textContent = message;
+}
+
+function setPhotoPreview(src) {
+  const wrap = byId("photoPreviewWrap");
+  const img = byId("photoPreview");
+  if (!src) {
+    img.removeAttribute("src");
+    wrap.classList.add("hidden");
+    return;
+  }
+  img.src = src;
+  wrap.classList.remove("hidden");
+}
+
+function getAbsoluteFileUrl(relativeUrl) {
+  if (!relativeUrl) return null;
+  if (relativeUrl.startsWith("http://") || relativeUrl.startsWith("https://")) return relativeUrl;
+  return `${window.location.origin}${relativeUrl}`;
+}
+
+async function uploadProfilePhoto(file) {
+  if (!file) return null;
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Selecione um arquivo de imagem válido.");
+  }
+  const formData = new FormData();
+  formData.append("file", file);
+
+  setPhotoStatus(`Enviando foto: ${file.name}...`);
+  const res = await fetch(`/api/uploads/profile-photo`, {
+    method: "POST",
+    body: formData
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.detail || "Falha ao enviar a foto.");
+  }
+
+  uploadedPhotoUrl = data.file_url;
+  byId("profile_photo").value = getAbsoluteFileUrl(data.file_url);
+  setPhotoPreview(getAbsoluteFileUrl(data.file_url));
+  setPhotoStatus(`Foto carregada com sucesso: ${file.name}`);
+  return data.file_url;
+}
+
+async function handlePhotoFile(file) {
+  try {
+    await uploadProfilePhoto(file);
+  } catch (err) {
+    setPhotoStatus(err.message);
+    alert(err.message);
+  }
 }
 
 function buildMapUrl(address) {
@@ -46,6 +105,48 @@ function renderList(targetId, items, formatter) {
 byId("loadMapBtn").addEventListener("click", loadMap);
 window.addEventListener("load", loadMap);
 
+byId("choosePhotoBtn").addEventListener("click", () => byId("profile_photo_file").click());
+byId("clearPhotoBtn").addEventListener("click", () => {
+  uploadedPhotoUrl = null;
+  byId("profile_photo").value = "";
+  byId("profile_photo_file").value = "";
+  setPhotoPreview(null);
+  setPhotoStatus("Nenhuma foto selecionada.");
+});
+
+byId("profile_photo_file").addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (file) await handlePhotoFile(file);
+});
+
+const photoDropZone = byId("photoDropZone");
+["dragenter", "dragover"].forEach((eventName) => {
+  photoDropZone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    photoDropZone.classList.add("dragover");
+  });
+});
+["dragleave", "drop"].forEach((eventName) => {
+  photoDropZone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    photoDropZone.classList.remove("dragover");
+  });
+});
+photoDropZone.addEventListener("drop", async (e) => {
+  const file = e.dataTransfer?.files?.[0];
+  if (file) await handlePhotoFile(file);
+});
+photoDropZone.addEventListener("click", () => byId("profile_photo_file").click());
+
+byId("profile_photo").addEventListener("input", () => {
+  const value = byId("profile_photo").value.trim();
+  uploadedPhotoUrl = value || null;
+  setPhotoPreview(value || null);
+  setPhotoStatus(value ? "Link da foto informado manualmente." : "Nenhuma foto selecionada.");
+});
+
 byId("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   try {
@@ -57,13 +158,17 @@ byId("registerForm").addEventListener("submit", async (e) => {
       neighborhood: byId("neighborhood").value,
       city: byId("city").value,
       address: byId("address").value,
-      profile_photo: byId("profile_photo").value || null
+      profile_photo: byId("profile_photo").value.trim() || uploadedPhotoUrl || null
     };
     const data = await api("/users/register", {
       method: "POST",
       body: JSON.stringify(payload)
     });
     alert(`Conta criada com ID ${data.id}`);
+    byId("registerForm").reset();
+    uploadedPhotoUrl = null;
+    setPhotoPreview(null);
+    setPhotoStatus("Nenhuma foto selecionada.");
   } catch (err) {
     alert(err.message);
   }

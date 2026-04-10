@@ -30,7 +30,22 @@
           <input type="text" id="neighborhood" placeholder="Bairro" />
           <input type="text" id="city" placeholder="Cidade" value="Magé" />
           <input type="text" id="address" value="Rua Mirabel, 49 Piabetá - Magé - RJ CEP 25931-854" />
-          <input type="text" id="profile_photo" placeholder="URL da foto do passeador (obrigatória para passeador)" />
+          <input type="text" id="profile_photo" placeholder="Link da foto do passeador ou envie um arquivo" />
+          <div class="upload-box" id="photoDropZone">
+            <input type="file" id="profile_photo_file" accept="image/*" hidden />
+            <div class="upload-box-inner">
+              <strong>Foto do passeador</strong>
+              <span>Arraste a imagem aqui, clique para escolher da pasta, ou cole um link no campo acima.</span>
+            </div>
+          </div>
+          <div class="upload-actions">
+            <button type="button" id="choosePhotoBtn" class="secondary-btn">Escolher foto da pasta</button>
+            <button type="button" id="clearPhotoBtn" class="secondary-btn">Limpar foto</button>
+          </div>
+          <div id="photoUploadStatus" class="hint">Nenhuma foto selecionada.</div>
+          <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
+            <img id="photoPreview" alt="Prévia da foto do passeador" />
+          </div>
           <button type="submit">Cadastrar</button>
         </form>
       </div>
