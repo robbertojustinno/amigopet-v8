@@ -313,3 +313,27 @@ def criar_pagamento():
         "link_pagamento": data.get("init_point"),
         "sandbox_link": data.get("sandbox_init_point")
     }
+import os
+from fastapi import HTTPException
+
+@router.post("/admin/login")
+def admin_login(payload: UserLogin):
+    admin_email = os.getenv("ADMIN_EMAIL")
+    admin_password = os.getenv("ADMIN_PASSWORD")
+
+    if not admin_email or not admin_password:
+        raise HTTPException(status_code=500, detail="Admin não configurado no servidor.")
+
+    if payload.email != admin_email or payload.password != admin_password:
+        raise HTTPException(status_code=401, detail="Credenciais admin inválidas.")
+
+    return {
+        "id": 0,
+        "full_name": "Administrador",
+        "email": admin_email,
+        "role": "admin",
+        "neighborhood": "Painel central",
+        "city": "Sistema",
+        "address": "Ambiente administrativo",
+        "online": True
+    }
