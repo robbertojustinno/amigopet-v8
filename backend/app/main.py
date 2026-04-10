@@ -1,4 +1,7 @@
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 frontend_dir = BASE_DIR / "frontend"
 from pathlib import Path
