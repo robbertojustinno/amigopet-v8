@@ -6,18 +6,43 @@ let uploadedPhotoUrl = null;
 let currentCoords = null;
 let latestMercadoPagoLink = null;
 let currentAccessTab = "client";
+let currentUser = null;
 
 function pretty(obj) {
   return JSON.stringify(obj, null, 2);
 }
 
+function showScreen(screenId) {
+  document.querySelectorAll(".screen").forEach((screen) => {
+    screen.classList.remove("active");
+  });
+  byId(screenId)?.classList.add("active");
+}
+
+function updateHeaderState() {
+  const logoutBtn = byId("logoutBtn");
+  if (!logoutBtn) return;
+
+  if (currentUser) {
+    logoutBtn.classList.remove("hidden");
+  } else {
+    logoutBtn.classList.add("hidden");
+  }
+}
+
 function renderSession(user) {
+  currentUser = user || null;
+  const sessionBox = byId("sessionBox");
+
+  if (!sessionBox) return;
+
   if (!user) {
-    byId("sessionBox").textContent = "Nenhum";
+    sessionBox.textContent = "Nenhum";
+    updateHeaderState();
     return;
   }
 
-  byId("sessionBox").textContent = [
+  sessionBox.textContent = [
     `ID: ${user.id ?? "-"}`,
     `Nome: ${user.full_name ?? "-"}`,
     `E-mail: ${user.email ?? "-"}`,
@@ -35,6 +60,32 @@ function renderSession(user) {
     `Endereço: ${user.address || "-"}`,
     `Online: ${user.online ? "Sim" : "Não"}`
   ].join("\n");
+
+  if (user.role === "admin") {
+    showScreen("adminDashboard");
+    loadAdminDashboard();
+  } else if (user.role === "walker") {
+    showScreen("walkerDashboard");
+    byId("walkerSessionInfo").textContent = `${user.full_name || "Passeador"} conectado`;
+    loadRequests();
+  } else {
+    showScreen("clientDashboard");
+    byId("clientSessionInfo").textContent = `${user.full_name || "Cliente"} conectado`;
+    loadRequests();
+  }
+
+  updateHeaderState();
+}
+
+function logout() {
+  localStorage.removeItem("session_user");
+  currentUser = null;
+  currentAccessTab = "client";
+  latestMercadoPagoLink = null;
+  renderSession(null);
+  setAccessTab("client");
+  showScreen("landingScreen");
+  updatePaymentBoxDefault();
 }
 
 function buildMapUrl(address) {
@@ -111,7 +162,6 @@ function getAbsoluteFileUrl(relativeUrl) {
 
 async function uploadProfilePhoto(file) {
   if (!file) return null;
-
   if (!file.type.startsWith("image/")) {
     throw new Error("Selecione um arquivo de imagem válido.");
   }
@@ -141,7 +191,6 @@ async function uploadProfilePhoto(file) {
 
   setPhotoPreview(getAbsoluteFileUrl(data.file_url));
   setPhotoStatus(`Foto carregada com sucesso: ${file.name}`);
-
   return data.file_url;
 }
 
@@ -210,60 +259,130 @@ function renderList(targetId, items, formatter) {
   });
 }
 
-function scrollToAuth() {
-  byId("authPanel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+function openLogin(tab) {
+  setAccessTab(tab);
+  showScreen("loginScreen");
+}
+
+function openRegisterForCurrentTab() {
+  if (currentAccessTab === "admin") {
+    alert("Cadastro de admin não está habilitado nesta tela.");
+    return;
+  }
+  showScreen("registerScreen");
 }
 
 function setAccessTab(tab) {
   currentAccessTab = tab;
 
-  document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.tab === tab);
-  });
-
-  const loginTitle = byId("loginTitle");
-  const registerTitle = byId("registerTitle");
-  const registerPanel = byId("registerPanel");
+  const loginTitle = byId("loginScreenTitle");
+  const loginSubtitle = byId("loginScreenSubtitle");
+  const registerTitle = byId("registerScreenTitle");
+  const registerSubtitle = byId("registerScreenSubtitle");
+  const goToRegisterBtn = byId("goToRegisterBtn");
   const role = byId("role");
 
   if (tab === "client") {
     if (loginTitle) loginTitle.textContent = "Entrar como Cliente";
+    if (loginSubtitle) loginSubtitle.textContent = "Acesse sua área de cliente";
     if (registerTitle) registerTitle.textContent = "Criar conta de Cliente";
-    if (registerPanel) registerPanel.style.display = "block";
+    if (registerSubtitle) registerSubtitle.textContent = "Cadastre-se para pedir passeios";
+    if (goToRegisterBtn) goToRegisterBtn.classList.remove("hidden");
     if (role) role.value = "client";
   }
 
   if (tab === "walker") {
     if (loginTitle) loginTitle.textContent = "Entrar como Passeador";
+    if (loginSubtitle) loginSubtitle.textContent = "Acesse sua área de passeador";
     if (registerTitle) registerTitle.textContent = "Criar conta de Passeador";
-    if (registerPanel) registerPanel.style.display = "block";
+    if (registerSubtitle) registerSubtitle.textContent = "Cadastre-se para receber corridas";
+    if (goToRegisterBtn) goToRegisterBtn.classList.remove("hidden");
     if (role) role.value = "walker";
   }
 
   if (tab === "admin") {
     if (loginTitle) loginTitle.textContent = "Entrar como Admin";
-    if (registerTitle) registerTitle.textContent = "Cadastro de Admin desabilitado nesta tela";
-    if (registerPanel) registerPanel.style.display = "none";
+    if (loginSubtitle) loginSubtitle.textContent = "Acesse o painel administrativo";
+    if (registerTitle) registerTitle.textContent = "Cadastro de Admin";
+    if (registerSubtitle) registerSubtitle.textContent = "Cadastro desabilitado nesta tela";
+    if (goToRegisterBtn) goToRegisterBtn.classList.add("hidden");
   }
 }
 
-byId("goLoginBtn")?.addEventListener("click", scrollToAuth);
-byId("goRegisterBtn")?.addEventListener("click", scrollToAuth);
-byId("heroStartBtn")?.addEventListener("click", scrollToAuth);
-byId("heroPlansBtn")?.addEventListener("click", () => alert("Você pode criar uma seção de planos depois."));
-byId("goPlansBtn")?.addEventListener("click", () => alert("Você pode criar uma seção de planos depois."));
+function updatePaymentBoxDefault() {
+  const box = byId("paymentStatusBox");
+  if (!box) return;
 
-document.querySelectorAll("[data-tab-target]").forEach((btn) => {
+  box.innerHTML = `
+    <div class="payment-status-title">Nenhum pagamento gerado ainda.</div>
+    <div class="payment-status-subtitle">Quando você gerar um pagamento, ele vai aparecer aqui de forma limpa.</div>
+  `;
+}
+
+function renderPaymentBox(data) {
+  const box = byId("paymentStatusBox");
+  if (!box) return;
+
+  const link = data.sandbox_link || data.link_pagamento || "";
+  latestMercadoPagoLink = link || null;
+
+  box.innerHTML = `
+    <div class="payment-status-title">Pagamento gerado com sucesso</div>
+    <div class="payment-status-subtitle">Valor: R$ ${Number(data.amount || 0).toFixed(2)}</div>
+    <div class="payment-status-subtitle">Status: ${data.status || "created"}</div>
+    <div class="payment-status-subtitle">Solicitação: ${data.request_id ?? "não vinculada"}</div>
+  `;
+}
+
+async function loadAdminDashboard() {
+  try {
+    const data = await api("/admin/dashboard");
+    byId("metricTotalUsers").textContent = data.total_users ?? 0;
+    byId("metricClients").textContent = data.total_clients ?? 0;
+    byId("metricWalkers").textContent = data.total_walkers ?? 0;
+    byId("metricRevenue").textContent = `R$ ${Number(data.total_revenue || 0).toFixed(2)}`;
+
+    const users = await api("/admin/users");
+    renderList("adminUsersList", users, (item) => `
+      <strong>${item.full_name}</strong><br>
+      E-mail: ${item.email}<br>
+      Perfil: <span class="tag">${item.role}</span>
+      <span class="tag">${item.city || "-"}</span>
+      <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span>
+    `);
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+byId("goHomeBtn")?.addEventListener("click", () => {
+  showScreen("landingScreen");
+});
+
+byId("logoutBtn")?.addEventListener("click", logout);
+
+byId("startNowBtn")?.addEventListener("click", () => {
+  document.getElementById("accessSection")?.scrollIntoView({ behavior: "smooth" });
+});
+
+byId("seeAccessBtn")?.addEventListener("click", () => {
+  document.getElementById("accessSection")?.scrollIntoView({ behavior: "smooth" });
+});
+
+document.querySelectorAll(".access-open-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    setAccessTab(btn.dataset.tabTarget);
-    scrollToAuth();
+    openLogin(btn.dataset.target);
   });
 });
 
-document.querySelectorAll(".tab-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    setAccessTab(btn.dataset.tab);
-  });
+byId("backToHomeBtn")?.addEventListener("click", () => {
+  showScreen("landingScreen");
+});
+
+byId("goToRegisterBtn")?.addEventListener("click", openRegisterForCurrentTab);
+
+byId("backToLoginBtn")?.addEventListener("click", () => {
+  showScreen("loginScreen");
 });
 
 byId("loadMapBtn")?.addEventListener("click", loadMap);
@@ -349,6 +468,7 @@ byId("registerForm")?.addEventListener("submit", async (e) => {
     uploadedPhotoUrl = null;
     setPhotoPreview(null);
     setPhotoStatus("Nenhuma foto selecionada.");
+    showScreen("loginScreen");
   } catch (err) {
     alert(err.message);
   }
@@ -490,12 +610,21 @@ async function loadRequests() {
         <small>${item.notes || ""}</small>
       `;
     });
+
+    renderList("walkerRequestsInfo", data, (item) => `
+      <strong>Solicitação #${item.id}</strong><br>
+      Cliente: ${item.client_id}<br>
+      Status: <span class="tag">${item.status}</span>
+      Pagamento: <span class="tag">${item.payment_status}</span>
+    `);
   } catch (err) {
-    alert(err.message);
+    console.log(err.message);
   }
 }
 
 byId("loadRequestsBtn")?.addEventListener("click", loadRequests);
+
+byId("refreshAdminBtn")?.addEventListener("click", loadAdminDashboard);
 
 byId("expireBtn")?.addEventListener("click", async () => {
   try {
@@ -594,15 +723,8 @@ async function generateMercadoPagoPayment() {
     const path = query.toString() ? `/pagamento?${query.toString()}` : "/pagamento";
     const data = await api(path, { method: "GET" });
 
-    latestMercadoPagoLink = data.sandbox_link || data.link_pagamento || null;
-
-    if (byId("mpPaymentResult")) byId("mpPaymentResult").textContent = pretty(data);
-
-    if (!latestMercadoPagoLink) {
-      alert("Pagamento gerado, mas nenhum link foi retornado.");
-    }
+    renderPaymentBox(data);
   } catch (err) {
-    if (byId("mpPaymentResult")) byId("mpPaymentResult").textContent = err.message;
     alert(err.message);
   }
 }
@@ -627,9 +749,14 @@ if (session) {
   try {
     renderSession(JSON.parse(session));
   } catch {
-    if (byId("sessionBox")) byId("sessionBox").textContent = session;
+    renderSession(null);
   }
+} else {
+  renderSession(null);
+  showScreen("landingScreen");
 }
 
 setAccessTab("client");
+updatePaymentBoxDefault();
+updateHeaderState();
 loadRequests();
