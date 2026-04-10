@@ -1,7 +1,6 @@
 :root {
   --bg: #e9eef7;
   --card: #ffffff;
-  --card-dark: #091a3b;
   --muted: #5b6b84;
   --line: #d7dfec;
   --text: #0a1d4a;
@@ -34,6 +33,18 @@ textarea {
   font: inherit;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -43,7 +54,7 @@ textarea {
   align-items: center;
   gap: 20px;
   padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
@@ -91,12 +102,13 @@ textarea {
 }
 
 .hero-grid,
-.feature-grid,
 .access-grid,
-.auth-layout,
 .grid-2,
 .grid-3,
-.operations-grid {
+.actions,
+.toolbar,
+.upload-actions,
+.dashboard-grid {
   display: grid;
   gap: 22px;
 }
@@ -105,16 +117,8 @@ textarea {
   grid-template-columns: 1.1fr 0.9fr;
 }
 
-.feature-grid {
-  grid-template-columns: repeat(3, 1fr);
-}
-
 .access-grid {
   grid-template-columns: repeat(3, 1fr);
-}
-
-.auth-layout {
-  grid-template-columns: 1fr 1fr;
 }
 
 .grid-2 {
@@ -125,11 +129,15 @@ textarea {
   grid-template-columns: repeat(3, 1fr);
 }
 
+.dashboard-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .hero-card,
-.feature-card,
 .access-card,
 .panel-card,
-.card {
+.card,
+.metric-card {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -155,10 +163,12 @@ textarea {
 
 .hero-text,
 .hero-note,
-.feature-card p,
 .access-card p,
-.section-head p,
-.hint {
+.hint,
+.auth-head p,
+.dashboard-head p,
+.payment-status-subtitle,
+.section-head p {
   color: var(--muted);
 }
 
@@ -175,14 +185,16 @@ textarea {
   gap: 18px;
 }
 
-.stat-box {
+.stat-box,
+.metric-card {
   background: #f8fbff;
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 22px;
 }
 
-.stat-box strong {
+.stat-box strong,
+.metric-card strong {
   display: block;
   font-size: 28px;
   margin-bottom: 10px;
@@ -209,12 +221,21 @@ textarea {
   font-size: 28px;
 }
 
-.section-head h2,
-.panel-card h2,
-.card h2,
-.access-card h3,
-.feature-card h3 {
-  margin-top: 0;
+.section-head,
+.auth-head {
+  margin-bottom: 18px;
+}
+
+.auth-card {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
 }
 
 .access-card {
@@ -232,37 +253,22 @@ textarea {
   background: #edf3ff;
 }
 
-.access-list {
-  margin: 0;
-  padding-left: 18px;
-  color: var(--muted);
-}
-
-.access-list li {
-  margin-bottom: 6px;
-}
-
-.tabs {
+.dashboard-head,
+.section-head-inline {
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
 }
 
-.tab-btn {
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--text);
-  padding: 12px 18px;
-  border-radius: 14px;
-  cursor: pointer;
+.status-pill {
+  background: #dff7e6;
+  color: #146534;
+  border-radius: 999px;
+  padding: 10px 14px;
   font-weight: bold;
-}
-
-.tab-btn.active {
-  background: linear-gradient(90deg, #22c55e, #2563eb);
-  color: #fff;
-  border-color: transparent;
 }
 
 .form {
@@ -324,12 +330,23 @@ button[data-action],
 }
 
 .status-box,
-pre {
+pre,
+.payment-clean-box {
   background: #f8fbff;
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 14px;
   overflow: auto;
+}
+
+.payment-clean-box {
+  display: grid;
+  gap: 8px;
+}
+
+.payment-status-title {
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .list {
@@ -348,11 +365,9 @@ pre {
   border: 1px solid #d9e4f3;
 }
 
-.toolbar,
 .actions,
+.toolbar,
 .upload-actions {
-  display: grid;
-  gap: 10px;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
@@ -430,20 +445,12 @@ pre {
   display: block;
 }
 
-.hidden {
-  display: none;
-}
-
 @media (max-width: 1100px) {
   .hero-grid,
-  .auth-layout,
+  .access-grid,
   .grid-2,
   .grid-3,
-  .access-grid,
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
-
+  .dashboard-grid-4,
   .hero-stats {
     grid-template-columns: 1fr;
   }
