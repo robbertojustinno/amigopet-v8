@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AmigoPet Pro V11</title>
+  <title>AmigoPet Pro V12</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -27,10 +27,10 @@
     <section id="landingScreen" class="screen active">
       <section class="hero-grid">
         <div class="hero-card">
-          <span class="hero-badge">V11 mais limpa e profissional</span>
+          <span class="hero-badge">V12 visual mais profissional</span>
           <h2>Transforme sua ideia em um serviço real de passeios para pets.</h2>
           <p class="hero-text">
-            Agora cada perfil tem sua própria área, com ações por card e sem campos técnicos desnecessários.
+            Plataforma com cliente, passeador e admin separados, pagamento integrado e base pronta para crescer.
           </p>
 
           <div class="hero-buttons">
@@ -49,7 +49,7 @@
             </div>
             <div class="stat-box">
               <strong>Cards</strong>
-              <span>Ações diretas por item</span>
+              <span>Fluxo mais limpo</span>
             </div>
           </div>
         </div>
@@ -62,33 +62,35 @@
             <p>Passeios, confiança e cuidado em cada rota.</p>
           </div>
           <p class="hero-note">
-            Estrutura mais organizada, pronta para continuar até PWA e APK.
+            Estrutura organizada para continuar evoluindo até PWA e APK.
           </p>
         </div>
       </section>
 
-      <section class="access-section" id="accessSection">
-        <div class="section-head">
-          <h2>Escolha seu acesso</h2>
-          <p>Cada perfil entra em sua própria área.</p>
+      <section class="access-section compact-access" id="accessSection">
+        <div class="section-head compact-head">
+          <div>
+            <h2>Escolha seu acesso</h2>
+            <p>Cada perfil entra em sua própria área.</p>
+          </div>
         </div>
 
-        <div class="access-grid">
-          <article class="access-card">
+        <div class="access-grid compact-grid">
+          <article class="access-card compact-card">
             <div class="access-icon">🛠️</div>
             <h3>Admin</h3>
             <p>Controle usuários, pagamentos, solicitações e o crescimento do sistema.</p>
             <button type="button" class="dark-btn access-open-btn" data-target="admin">Entrar como Admin</button>
           </article>
 
-          <article class="access-card">
+          <article class="access-card compact-card">
             <div class="access-icon">🐾</div>
             <h3>Cliente</h3>
             <p>Cadastre pets, solicite passeios, acompanhe pedidos e pague no app.</p>
             <button type="button" class="primary-btn access-open-btn" data-target="client">Entrar como Cliente</button>
           </article>
 
-          <article class="access-card">
+          <article class="access-card compact-card">
             <div class="access-icon">🚶</div>
             <h3>Passeador</h3>
             <p>Veja pedidos recebidos, aceite, recuse e conclua passeios por card.</p>
@@ -235,7 +237,7 @@
         <div>
           <h3>Cadastrar pet</h3>
           <form id="petForm" class="form">
-            <input type="number" id="pet_owner_id" placeholder="ID do cliente" required />
+            <input type="number" id="pet_owner_id" placeholder="Seu ID de cliente" required />
             <input type="text" id="pet_name" placeholder="Nome do pet" required />
             <input type="text" id="pet_breed" placeholder="Raça" />
             <select id="pet_size">
@@ -261,15 +263,19 @@
         <div>
           <h3>Solicitar passeio</h3>
           <form id="walkForm" class="form">
-            <input type="number" id="client_id" placeholder="ID do cliente" required />
-            <input type="number" id="walker_id" placeholder="ID do passeador" />
-            <input type="number" id="pet_id" placeholder="ID do pet" />
-            <input type="text" id="pickup_address" value="localhost" placeholder="Localização automática" />
+            <input type="text" id="pickup_address" value="localhost" placeholder="Endereço do passeio" />
             <input type="text" id="walk_neighborhood" placeholder="Bairro" />
             <input type="text" id="walk_city" placeholder="Cidade" />
             <input type="datetime-local" id="scheduled_at" />
-            <input type="number" id="duration_minutes" placeholder="Duração" value="30" />
-            <input type="number" id="price" placeholder="Preço" value="35" step="0.01" />
+            <label class="field-label" for="duration_minutes">Duração do passeio</label>
+            <select id="duration_minutes">
+              <option value="15">15 minutos</option>
+              <option value="30" selected>30 minutos</option>
+              <option value="45">45 minutos</option>
+              <option value="60">60 minutos</option>
+            </select>
+            <label class="field-label" for="price">Valor estimado</label>
+            <input type="number" id="price" placeholder="Valor estimado" value="35" step="0.01" />
             <input type="text" id="walk_notes" placeholder="Observações" />
             <button type="submit">Criar solicitação</button>
           </form>
@@ -281,7 +287,6 @@
           <h3>Minhas solicitações</h3>
           <button id="loadRequestsBtn" type="button" class="ghost-btn">Atualizar</button>
         </div>
-        <input type="number" id="request_user_id" placeholder="Filtrar por ID do usuário" />
         <div id="requestList" class="cards-grid"></div>
       </section>
 
