@@ -46,10 +46,21 @@ function renderSession(user) {
     if (byId("clientSessionInfo")) {
       byId("clientSessionInfo").textContent = `${user.full_name || "Cliente"} conectado`;
     }
+    fillClientFieldsFromSession();
     loadRequests();
   }
 
   updateHeaderState();
+}
+
+function fillClientFieldsFromSession() {
+  if (!currentUser || currentUser.role !== "client") return;
+
+  const petOwner = byId("pet_owner_id");
+  if (petOwner) petOwner.value = currentUser.id ?? "";
+
+  const requestFilter = byId("request_user_id");
+  if (requestFilter) requestFilter.value = currentUser.id ?? "";
 }
 
 function logout() {
@@ -347,10 +358,10 @@ function renderClientRequests(items) {
 
       <div class="request-meta">
         <span>Pet: ${item.pet_id ?? "-"}</span>
-        <span>Passeador: ${item.walker_id ?? "-"}</span>
+        <span>Passeador: ${item.walker_id ?? "A definir"}</span>
         <span>Endereço: ${item.pickup_address || "-"}</span>
         <span>Cidade/Bairro: ${item.city || "-"} / ${item.neighborhood || "-"}</span>
-        <span>Duração: ${item.duration_minutes} min</span>
+        <span>Duração: ${item.duration_minutes} minutos</span>
         <span>Valor: R$ ${Number(item.price || 0).toFixed(2)}</span>
       </div>
 
@@ -410,6 +421,7 @@ function renderWalkerRequests(items) {
         <span>Cliente: ${item.client_id}</span>
         <span>Pet: ${item.pet_id ?? "-"}</span>
         <span>Endereço: ${item.pickup_address || "-"}</span>
+        <span>Duração: ${item.duration_minutes} minutos</span>
         <span>Valor: R$ ${Number(item.price || 0).toFixed(2)}</span>
       </div>
 
@@ -664,8 +676,6 @@ byId("walkerSearchForm")?.addEventListener("submit", async (e) => {
       div.className = "item";
       div.innerHTML = `
         <strong>${item.full_name}</strong><br>
-        ID: ${item.id}<br>
-        <span class="tag">${item.role}</span>
         <span class="tag">${item.city || "-"}</span>
         <span class="tag">${item.neighborhood || "-"}</span>
         <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span><br>
@@ -681,11 +691,16 @@ byId("walkerSearchForm")?.addEventListener("submit", async (e) => {
 byId("walkForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  if (!currentUser || currentUser.role !== "client") {
+    alert("Sessão do cliente não encontrada.");
+    return;
+  }
+
   try {
     const payload = {
-      client_id: Number(byId("client_id")?.value),
-      walker_id: byId("walker_id")?.value ? Number(byId("walker_id").value) : null,
-      pet_id: byId("pet_id")?.value ? Number(byId("pet_id").value) : null,
+      client_id: Number(currentUser.id),
+      walker_id: null,
+      pet_id: null,
       pickup_address: (byId("pickup_address")?.value || "") === "localhost" ? "" : (byId("pickup_address")?.value || ""),
       neighborhood: byId("walk_neighborhood")?.value || "",
       city: byId("walk_city")?.value || "",
@@ -709,10 +724,13 @@ byId("walkForm")?.addEventListener("submit", async (e) => {
 
 async function loadRequests() {
   try {
-    const userId = byId("request_user_id")?.value || "";
-    const q = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
-    const data = await api(`/walk-requests${q}`);
+    let path = "/walk-requests";
 
+    if (currentUser?.id && currentUser.role !== "admin") {
+      path += `?user_id=${encodeURIComponent(currentUser.id)}`;
+    }
+
+    const data = await api(path);
     renderClientRequests(data);
     renderWalkerRequests(data);
   } catch (err) {
@@ -788,8 +806,8 @@ async function loadMessages() {
 byId("loadMessagesBtn")?.addEventListener("click", loadMessages);
 
 async function generateMercadoPagoPayment(requestId = "", amount = "") {
-  const resolvedRequestId = requestId || byId("mp_request_id")?.value.trim() || "";
-  const resolvedAmount = amount || byId("mp_amount")?.value.trim() || "35";
+  const resolvedRequestId = requestId || "";
+  const resolvedAmount = amount || "35";
 
   try {
     const query = new URLSearchParams();
