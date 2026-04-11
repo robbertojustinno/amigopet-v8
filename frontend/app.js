@@ -33,17 +33,14 @@ function goToCurrentHome() {
     showScreen("landingScreen");
     return;
   }
-
   if (currentUser.role === "admin") {
     showScreen("adminDashboard");
     return;
   }
-
   if (currentUser.role === "walker") {
     showScreen("walkerDashboard");
     return;
   }
-
   showScreen("clientDashboard");
 }
 
@@ -82,7 +79,6 @@ function renderSession(user) {
 
 function fillClientFieldsFromSession() {
   if (!currentUser || currentUser.role !== "client") return;
-
   const petOwner = byId("pet_owner_id");
   if (petOwner) petOwner.value = currentUser.id ?? "";
 }
@@ -560,7 +556,19 @@ async function loadAdminDashboard() {
 }
 
 byId("goHomeBtn")?.addEventListener("click", goToCurrentHome);
+byId("goWalkerPublicBtn")?.addEventListener("click", () => showScreen("walkerPublicScreen"));
+byId("goAccessBtn")?.addEventListener("click", () => {
+  document.getElementById("accessSection")?.scrollIntoView({ behavior: "smooth" });
+});
 byId("logoutBtn")?.addEventListener("click", logout);
+
+byId("heroHireBtn")?.addEventListener("click", () => {
+  document.getElementById("accessSection")?.scrollIntoView({ behavior: "smooth" });
+});
+
+byId("heroWalkerBtn")?.addEventListener("click", () => {
+  showScreen("walkerPublicScreen");
+});
 
 byId("startNowBtn")?.addEventListener("click", () => {
   document.getElementById("accessSection")?.scrollIntoView({ behavior: "smooth" });
@@ -568,6 +576,16 @@ byId("startNowBtn")?.addEventListener("click", () => {
 
 byId("seeAccessBtn")?.addEventListener("click", () => {
   document.getElementById("accessSection")?.scrollIntoView({ behavior: "smooth" });
+});
+
+byId("walkerPublicRegisterBtn")?.addEventListener("click", () => {
+  setAccessTab("walker");
+  showScreen("registerScreen");
+});
+
+byId("walkerPublicLoginBtn")?.addEventListener("click", () => {
+  setAccessTab("walker");
+  showScreen("loginScreen");
 });
 
 document.querySelectorAll(".access-open-btn").forEach((btn) => {
