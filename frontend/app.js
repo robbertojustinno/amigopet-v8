@@ -15,49 +15,14 @@ function showScreen(screenId) {
   byId(screenId)?.classList.add("active");
 }
 
-function pretty(obj) {
-  return JSON.stringify(obj, null, 2);
-}
-
 function updateHeaderState() {
   const logoutBtn = byId("logoutBtn");
   if (!logoutBtn) return;
-
-  if (currentUser) {
-    logoutBtn.classList.remove("hidden");
-  } else {
-    logoutBtn.classList.add("hidden");
-  }
+  logoutBtn.classList.toggle("hidden", !currentUser);
 }
 
 function renderSession(user) {
   currentUser = user || null;
-
-  const sessionBox = byId("sessionBox");
-  if (sessionBox) {
-    if (!user) {
-      sessionBox.textContent = "Nenhum";
-    } else {
-      sessionBox.textContent = [
-        `ID: ${user.id ?? "-"}`,
-        `Nome: ${user.full_name ?? "-"}`,
-        `E-mail: ${user.email ?? "-"}`,
-        `Perfil: ${
-          user.role === "walker"
-            ? "Passeador"
-            : user.role === "client"
-              ? "Cliente"
-              : user.role === "admin"
-                ? "Admin"
-                : (user.role ?? "-")
-        }`,
-        `Bairro: ${user.neighborhood || "-"}`,
-        `Cidade: ${user.city || "-"}`,
-        `Endereço: ${user.address || "-"}`,
-        `Online: ${user.online ? "Sim" : "Não"}`
-      ].join("\n");
-    }
-  }
 
   if (!user) {
     updateHeaderState();
@@ -66,15 +31,21 @@ function renderSession(user) {
 
   if (user.role === "admin") {
     showScreen("adminDashboard");
-    byId("adminSessionInfo") && (byId("adminSessionInfo").textContent = `${user.full_name || "Admin"} conectado`);
+    if (byId("adminSessionInfo")) {
+      byId("adminSessionInfo").textContent = `${user.full_name || "Admin"} conectado`;
+    }
     loadAdminDashboard();
   } else if (user.role === "walker") {
     showScreen("walkerDashboard");
-    byId("walkerSessionInfo") && (byId("walkerSessionInfo").textContent = `${user.full_name || "Passeador"} conectado`);
+    if (byId("walkerSessionInfo")) {
+      byId("walkerSessionInfo").textContent = `${user.full_name || "Passeador"} conectado`;
+    }
     loadRequests();
   } else {
     showScreen("clientDashboard");
-    byId("clientSessionInfo") && (byId("clientSessionInfo").textContent = `${user.full_name || "Cliente"} conectado`);
+    if (byId("clientSessionInfo")) {
+      byId("clientSessionInfo").textContent = `${user.full_name || "Cliente"} conectado`;
+    }
     loadRequests();
   }
 
@@ -86,9 +57,9 @@ function logout() {
   currentUser = null;
   currentAccessTab = "client";
   latestMercadoPagoLink = null;
-  renderSession(null);
-  setAccessTab("client");
+  uploadedPhotoUrl = null;
   showScreen("landingScreen");
+  updateHeaderState();
   updatePaymentBoxDefault();
 }
 
@@ -243,25 +214,6 @@ async function api(path, options = {}) {
   return data;
 }
 
-function renderList(targetId, items, formatter) {
-  const box = byId(targetId);
-  if (!box) return;
-
-  box.innerHTML = "";
-
-  if (!items || items.length === 0) {
-    box.innerHTML = `<div class="item">Sem registros.</div>`;
-    return;
-  }
-
-  items.forEach((item) => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = formatter(item);
-    box.appendChild(div);
-  });
-}
-
 function openLogin(tab) {
   setAccessTab(tab);
   showScreen("loginScreen");
@@ -333,7 +285,172 @@ function renderPaymentBox(data) {
     <div class="payment-status-subtitle">Valor: R$ ${Number(data.amount || 0).toFixed(2)}</div>
     <div class="payment-status-subtitle">Status: ${data.status || "created"}</div>
     <div class="payment-status-subtitle">Solicitação: ${data.request_id ?? "não vinculada"}</div>
+    <div class="request-actions">
+      <button type="button" class="card-action-btn" id="openPaymentInlineBtn">Abrir pagamento</button>
+    </div>
   `;
+
+  byId("openPaymentInlineBtn")?.addEventListener("click", () => {
+    if (latestMercadoPagoLink) {
+      window.open(latestMercadoPagoLink, "_blank");
+    }
+  });
+}
+
+function renderAdminUsers(items) {
+  const box = byId("adminUsersList");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  if (!items || items.length === 0) {
+    box.innerHTML = `<div class="item">Sem registros.</div>`;
+    return;
+  }
+
+  items.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <strong>${item.full_name}</strong><br>
+      E-mail: ${item.email}<br>
+      Perfil: <span class="tag">${item.role}</span>
+      <span class="tag">${item.city || "-"}</span>
+      <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function renderClientRequests(items) {
+  const box = byId("requestList");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  if (!items || items.length === 0) {
+    box.innerHTML = `<div class="item">Sem solicitações.</div>`;
+    return;
+  }
+
+  items.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "request-card";
+    div.innerHTML = `
+      <div class="request-card-top">
+        <div class="request-card-title">Solicitação #${item.id}</div>
+        <div>
+          <span class="tag">${item.status}</span>
+          <span class="tag">${item.payment_status}</span>
+        </div>
+      </div>
+
+      <div class="request-meta">
+        <span>Pet: ${item.pet_id ?? "-"}</span>
+        <span>Passeador: ${item.walker_id ?? "-"}</span>
+        <span>Endereço: ${item.pickup_address || "-"}</span>
+        <span>Cidade/Bairro: ${item.city || "-"} / ${item.neighborhood || "-"}</span>
+        <span>Duração: ${item.duration_minutes} min</span>
+        <span>Valor: R$ ${Number(item.price || 0).toFixed(2)}</span>
+      </div>
+
+      <div class="request-actions">
+        <button type="button" class="card-action-btn pay-btn" data-request-id="${item.id}" data-amount="${item.price || 35}">
+          Gerar pagamento
+        </button>
+        <button type="button" class="ghost-btn chat-load-btn" data-request-id="${item.id}">
+          Ver chat
+        </button>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+
+  box.querySelectorAll(".pay-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const requestId = btn.dataset.requestId;
+      const amount = btn.dataset.amount;
+      await generateMercadoPagoPayment(requestId, amount);
+    });
+  });
+
+  box.querySelectorAll(".chat-load-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const requestId = btn.dataset.requestId;
+      if (byId("chat_load_request_id")) byId("chat_load_request_id").value = requestId;
+      await loadMessages();
+    });
+  });
+}
+
+function renderWalkerRequests(items) {
+  const box = byId("walkerRequestsInfo");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  if (!items || items.length === 0) {
+    box.innerHTML = `<div class="item">Sem solicitações para exibir.</div>`;
+    return;
+  }
+
+  items.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "request-card";
+    div.innerHTML = `
+      <div class="request-card-top">
+        <div class="request-card-title">Solicitação #${item.id}</div>
+        <div>
+          <span class="tag">${item.status}</span>
+          <span class="tag">${item.payment_status}</span>
+        </div>
+      </div>
+
+      <div class="request-meta">
+        <span>Cliente: ${item.client_id}</span>
+        <span>Pet: ${item.pet_id ?? "-"}</span>
+        <span>Endereço: ${item.pickup_address || "-"}</span>
+        <span>Valor: R$ ${Number(item.price || 0).toFixed(2)}</span>
+      </div>
+
+      <div class="request-actions">
+        <button type="button" class="card-action-btn walker-action-btn" data-action="accept" data-request-id="${item.id}">
+          Aceitar
+        </button>
+        <button type="button" class="secondary-btn walker-action-btn" data-action="decline" data-request-id="${item.id}">
+          Recusar
+        </button>
+        <button type="button" class="dark-btn walker-action-btn" data-action="complete" data-request-id="${item.id}">
+          Concluir
+        </button>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+
+  box.querySelectorAll(".walker-action-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!currentUser?.id) {
+        alert("Sessão do passeador não encontrada.");
+        return;
+      }
+
+      const action = btn.dataset.action;
+      const requestId = btn.dataset.requestId;
+
+      try {
+        await api(`/walk-requests/${requestId}/${action}`, {
+          method: "POST",
+          body: JSON.stringify({ actor_id: currentUser.id })
+        });
+
+        alert(`Ação "${action}" executada.`);
+        await loadRequests();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+  });
 }
 
 async function loadAdminDashboard() {
@@ -345,22 +462,13 @@ async function loadAdminDashboard() {
     if (byId("metricRevenue")) byId("metricRevenue").textContent = `R$ ${Number(data.total_revenue || 0).toFixed(2)}`;
 
     const users = await api("/admin/users");
-    renderList("adminUsersList", users, (item) => `
-      <strong>${item.full_name}</strong><br>
-      E-mail: ${item.email}<br>
-      Perfil: <span class="tag">${item.role}</span>
-      <span class="tag">${item.city || "-"}</span>
-      <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span>
-    `);
+    renderAdminUsers(users);
   } catch (err) {
     alert(err.message);
   }
 }
 
-byId("goHomeBtn")?.addEventListener("click", () => {
-  showScreen("landingScreen");
-});
-
+byId("goHomeBtn")?.addEventListener("click", () => showScreen("landingScreen"));
 byId("logoutBtn")?.addEventListener("click", logout);
 
 byId("startNowBtn")?.addEventListener("click", () => {
@@ -372,20 +480,12 @@ byId("seeAccessBtn")?.addEventListener("click", () => {
 });
 
 document.querySelectorAll(".access-open-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    openLogin(btn.dataset.target);
-  });
+  btn.addEventListener("click", () => openLogin(btn.dataset.target));
 });
 
-byId("backToHomeBtn")?.addEventListener("click", () => {
-  showScreen("landingScreen");
-});
-
+byId("backToHomeBtn")?.addEventListener("click", () => showScreen("landingScreen"));
 byId("goToRegisterBtn")?.addEventListener("click", openRegisterForCurrentTab);
-
-byId("backToLoginBtn")?.addEventListener("click", () => {
-  showScreen("loginScreen");
-});
+byId("backToLoginBtn")?.addEventListener("click", () => showScreen("loginScreen"));
 
 byId("loadMapBtn")?.addEventListener("click", loadMap);
 window.addEventListener("load", tryAutoLocate);
@@ -550,15 +650,29 @@ byId("walkerSearchForm")?.addEventListener("submit", async (e) => {
     const city = encodeURIComponent(byId("search_city")?.value || "");
     const data = await api(`/walkers?neighborhood=${neighborhood}&city=${city}`);
 
-    renderList("walkerList", data, (item) => `
-      <strong>${item.full_name}</strong><br>
-      ID: ${item.id}<br>
-      <span class="tag">${item.role}</span>
-      <span class="tag">${item.city || "-"}</span>
-      <span class="tag">${item.neighborhood || "-"}</span>
-      <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span><br>
-      ${item.profile_photo ? `<small>Foto: ${item.profile_photo}</small>` : "<small>Sem foto</small>"}
-    `);
+    const box = byId("walkerList");
+    if (!box) return;
+    box.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      box.innerHTML = `<div class="item">Nenhum passeador encontrado.</div>`;
+      return;
+    }
+
+    data.forEach((item) => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <strong>${item.full_name}</strong><br>
+        ID: ${item.id}<br>
+        <span class="tag">${item.role}</span>
+        <span class="tag">${item.city || "-"}</span>
+        <span class="tag">${item.neighborhood || "-"}</span>
+        <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span><br>
+        ${item.profile_photo ? `<small>Foto: ${item.profile_photo}</small>` : "<small>Sem foto</small>"}
+      `;
+      box.appendChild(div);
+    });
   } catch (err) {
     alert(err.message);
   }
@@ -587,12 +701,6 @@ byId("walkForm")?.addEventListener("submit", async (e) => {
     });
 
     alert(`Solicitação criada com ID ${data.id}`);
-
-    if (byId("action_request_id")) byId("action_request_id").value = data.id;
-    if (byId("mp_request_id")) byId("mp_request_id").value = data.id;
-    if (byId("action_amount")) byId("action_amount").value = payload.price || 35;
-    if (byId("mp_amount")) byId("mp_amount").value = payload.price || 35;
-
     await loadRequests();
   } catch (err) {
     alert(err.message);
@@ -605,27 +713,8 @@ async function loadRequests() {
     const q = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
     const data = await api(`/walk-requests${q}`);
 
-    renderList("requestList", data, (item) => {
-      const statusTag = `<span class="tag">${item.status}</span>`;
-      const payTag = `<span class="tag">${item.payment_status}</span>`;
-
-      return `
-        <strong>Solicitação #${item.id}</strong><br>
-        Cliente: ${item.client_id} | Passeador: ${item.walker_id ?? "-"} | Pet: ${item.pet_id ?? "-"}<br>
-        Endereço: ${item.pickup_address}<br>
-        Cidade/Bairro: ${item.city || "-"} / ${item.neighborhood || "-"}<br>
-        Duração: ${item.duration_minutes} min | Valor: R$ ${item.price}<br>
-        ${statusTag} ${payTag}<br>
-        <small>${item.notes || ""}</small>
-      `;
-    });
-
-    renderList("walkerRequestsInfo", data, (item) => `
-      <strong>Solicitação #${item.id}</strong><br>
-      Cliente: ${item.client_id}<br>
-      Status: <span class="tag">${item.status}</span>
-      Pagamento: <span class="tag">${item.payment_status}</span>
-    `);
+    renderClientRequests(data);
+    renderWalkerRequests(data);
   } catch (err) {
     console.log(err.message);
   }
@@ -672,11 +761,25 @@ async function loadMessages() {
     if (!requestId) throw new Error("Informe o ID da solicitação.");
 
     const data = await api(`/messages/${requestId}`);
+    const box = byId("chatList");
+    if (!box) return;
 
-    renderList("chatList", data, (item) => `
-      <strong>Usuário ${item.sender_id}</strong><br>
-      ${item.text}
-    `);
+    box.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      box.innerHTML = `<div class="item">Sem mensagens.</div>`;
+      return;
+    }
+
+    data.forEach((item) => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <strong>Usuário ${item.sender_id}</strong><br>
+        ${item.text}
+      `;
+      box.appendChild(div);
+    });
   } catch (err) {
     alert(err.message);
   }
@@ -684,49 +787,14 @@ async function loadMessages() {
 
 byId("loadMessagesBtn")?.addEventListener("click", loadMessages);
 
-document.querySelectorAll("[data-action]").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    const action = btn.getAttribute("data-action");
-    const requestId = Number(byId("action_request_id")?.value);
-    const actorId = Number(byId("action_actor_id")?.value);
-    const amount = Number(byId("action_amount")?.value || 0);
-
-    if (!requestId || !actorId) {
-      alert("Informe ID da solicitação e ID do ator.");
-      return;
-    }
-
-    try {
-      let data;
-
-      if (action === "pay") {
-        data = await api(`/walk-requests/${requestId}/pay`, {
-          method: "POST",
-          body: JSON.stringify({ actor_id: actorId, amount })
-        });
-      } else {
-        data = await api(`/walk-requests/${requestId}/${action}`, {
-          method: "POST",
-          body: JSON.stringify({ actor_id: actorId })
-        });
-      }
-
-      if (byId("actionResult")) byId("actionResult").textContent = pretty(data);
-      await loadRequests();
-    } catch (err) {
-      if (byId("actionResult")) byId("actionResult").textContent = err.message;
-    }
-  });
-});
-
-async function generateMercadoPagoPayment() {
-  const requestId = byId("mp_request_id")?.value.trim() || "";
-  const amount = byId("mp_amount")?.value.trim() || "";
+async function generateMercadoPagoPayment(requestId = "", amount = "") {
+  const resolvedRequestId = requestId || byId("mp_request_id")?.value.trim() || "";
+  const resolvedAmount = amount || byId("mp_amount")?.value.trim() || "35";
 
   try {
     const query = new URLSearchParams();
-    if (requestId) query.set("request_id", requestId);
-    if (amount) query.set("amount", amount);
+    if (resolvedRequestId) query.set("request_id", resolvedRequestId);
+    if (resolvedAmount) query.set("amount", resolvedAmount);
 
     const path = query.toString() ? `/pagamento?${query.toString()}` : "/pagamento";
     const data = await api(path, { method: "GET" });
@@ -735,21 +803,6 @@ async function generateMercadoPagoPayment() {
     alert(err.message);
   }
 }
-
-byId("generateMpPaymentBtn")?.addEventListener("click", generateMercadoPagoPayment);
-
-byId("openMpPaymentBtn")?.addEventListener("click", async () => {
-  if (!latestMercadoPagoLink) {
-    await generateMercadoPagoPayment();
-  }
-
-  if (!latestMercadoPagoLink) {
-    alert("Nenhum link de pagamento disponível.");
-    return;
-  }
-
-  window.open(latestMercadoPagoLink, "_blank");
-});
 
 const session = localStorage.getItem("session_user");
 if (session) {
