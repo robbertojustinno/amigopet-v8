@@ -109,13 +109,16 @@ textarea {
 .toolbar,
 .upload-actions,
 .dashboard-grid,
-.cards-grid {
+.cards-grid,
+.benefits-grid,
+.requirements-grid,
+.steps-list {
   display: grid;
   gap: 22px;
 }
 
 .hero-grid {
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.15fr 0.85fr;
 }
 
 .access-grid {
@@ -146,12 +149,24 @@ textarea {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+.benefits-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.requirements-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .hero-card,
 .access-card,
 .panel-card,
 .card,
 .metric-card,
-.request-card {
+.request-card,
+.benefit-card,
+.info-card,
+.faq-card,
+.walker-public-hero {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -208,7 +223,8 @@ textarea {
   margin-bottom: 16px;
 }
 
-.hero-card h2 {
+.hero-card h2,
+.walker-public-content h2 {
   margin: 0 0 14px;
   font-size: 36px;
   line-height: 1.08;
@@ -223,7 +239,12 @@ textarea {
 .payment-status-subtitle,
 .section-head p,
 .request-card p,
-.field-label {
+.field-label,
+.step-item p,
+.benefit-card p,
+.info-card li,
+.faq-item p,
+.walker-public-content p {
   color: var(--muted);
 }
 
@@ -304,7 +325,8 @@ textarea {
   gap: 14px;
 }
 
-.access-icon {
+.access-icon,
+.benefit-icon {
   width: 58px;
   height: 58px;
   border-radius: 18px;
@@ -394,7 +416,8 @@ button[type="submit"],
 
 .status-box,
 pre,
-.payment-clean-box {
+.payment-clean-box,
+.list {
   background: #f8fbff;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -413,9 +436,6 @@ pre,
 }
 
 .list {
-  border: 1px dashed #cbd5e1;
-  border-radius: 16px;
-  padding: 12px;
   min-height: 110px;
   display: grid;
   gap: 10px;
@@ -424,7 +444,7 @@ pre,
 .item {
   padding: 12px;
   border-radius: 14px;
-  background: #f8fbff;
+  background: #fff;
   border: 1px solid #d9e4f3;
 }
 
@@ -543,6 +563,37 @@ pre,
   display: block;
 }
 
+.step-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.step-number {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22c55e, #2563eb);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.clean-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.faq-item + .faq-item {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
 @media (max-width: 1100px) {
   .hero-grid,
   .access-grid,
@@ -550,7 +601,9 @@ pre,
   .grid-3,
   .dashboard-grid-4,
   .dashboard-grid-3,
-  .hero-stats {
+  .hero-stats,
+  .benefits-grid,
+  .requirements-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -569,7 +622,8 @@ pre,
     flex: 1;
   }
 
-  .hero-card h2 {
+  .hero-card h2,
+  .walker-public-content h2 {
     font-size: 28px;
   }
 }
