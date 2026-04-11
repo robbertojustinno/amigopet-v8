@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AmigoPet Pro V10</title>
+  <title>AmigoPet Pro V11</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -27,10 +27,10 @@
     <section id="landingScreen" class="screen active">
       <section class="hero-grid">
         <div class="hero-card">
-          <span class="hero-badge">V10 profissional em evolução</span>
+          <span class="hero-badge">V11 mais limpa e profissional</span>
           <h2>Transforme sua ideia em um serviço real de passeios para pets.</h2>
           <p class="hero-text">
-            Plataforma com cliente, passeador e admin separados, pagamento integrado e base pronta para virar app.
+            Agora cada perfil tem sua própria área, com ações por card e sem campos técnicos desnecessários.
           </p>
 
           <div class="hero-buttons">
@@ -45,11 +45,11 @@
             </div>
             <div class="stat-box">
               <strong>Pix</strong>
-              <span>Pagamento preparado</span>
+              <span>Pagamento integrado</span>
             </div>
             <div class="stat-box">
-              <strong>Mapa</strong>
-              <span>Fluxo pronto para evoluir</span>
+              <strong>Cards</strong>
+              <span>Ações diretas por item</span>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@
             <p>Passeios, confiança e cuidado em cada rota.</p>
           </div>
           <p class="hero-note">
-            Agora a estrutura já fica pronta para separar os acessos e evoluir até APK.
+            Estrutura mais organizada, pronta para continuar até PWA e APK.
           </p>
         </div>
       </section>
@@ -77,21 +77,21 @@
           <article class="access-card">
             <div class="access-icon">🛠️</div>
             <h3>Admin</h3>
-            <p>Controle de usuários, pagamentos, solicitações e visão do negócio.</p>
+            <p>Controle usuários, pagamentos, solicitações e o crescimento do sistema.</p>
             <button type="button" class="dark-btn access-open-btn" data-target="admin">Entrar como Admin</button>
           </article>
 
           <article class="access-card">
             <div class="access-icon">🐾</div>
             <h3>Cliente</h3>
-            <p>Solicita passeio, acompanha status, paga e conversa no chat.</p>
+            <p>Cadastre pets, solicite passeios, acompanhe pedidos e pague no app.</p>
             <button type="button" class="primary-btn access-open-btn" data-target="client">Entrar como Cliente</button>
           </article>
 
           <article class="access-card">
             <div class="access-icon">🚶</div>
             <h3>Passeador</h3>
-            <p>Recebe pedidos, aceita corridas, acompanha rota e conclui passeios.</p>
+            <p>Veja pedidos recebidos, aceite, recuse e conclua passeios por card.</p>
             <button type="button" class="secondary-btn access-open-btn" data-target="walker">Entrar como Passeador</button>
           </article>
         </div>
@@ -282,18 +282,11 @@
           <button id="loadRequestsBtn" type="button" class="ghost-btn">Atualizar</button>
         </div>
         <input type="number" id="request_user_id" placeholder="Filtrar por ID do usuário" />
-        <div id="requestList" class="list"></div>
+        <div id="requestList" class="cards-grid"></div>
       </section>
 
       <section class="card">
         <h3>Pagamento Mercado Pago</h3>
-        <div class="actions">
-          <input type="number" id="mp_request_id" placeholder="ID da solicitação (opcional)" />
-          <input type="number" id="mp_amount" placeholder="Valor" value="35" step="0.01" />
-          <button id="generateMpPaymentBtn" type="button">Gerar pagamento</button>
-          <button id="openMpPaymentBtn" type="button">Abrir pagamento</button>
-        </div>
-
         <div class="payment-clean-box" id="paymentStatusBox">
           <div class="payment-status-title">Nenhum pagamento gerado ainda.</div>
           <div class="payment-status-subtitle">Quando você gerar um pagamento, ele vai aparecer aqui de forma limpa.</div>
@@ -323,32 +316,17 @@
       <div class="dashboard-head">
         <div>
           <h2>Painel do Passeador</h2>
-          <p>Receba pedidos, aceite corridas e acompanhe rotas</p>
+          <p>Receba pedidos, aceite corridas e conclua passeios</p>
         </div>
         <div class="status-pill" id="walkerSessionInfo">Passeador conectado</div>
       </div>
 
       <section class="card">
-        <h3>Solicitações e ações</h3>
-        <div class="actions">
-          <input type="number" id="action_request_id" placeholder="ID da solicitação" />
-          <input type="number" id="action_actor_id" placeholder="ID do ator" />
-          <input type="number" id="action_amount" placeholder="Valor pagamento" value="35" step="0.01" />
-          <button data-action="accept" type="button">Aceitar</button>
-          <button data-action="decline" type="button">Recusar</button>
-          <button data-action="confirm-payment" type="button">Confirmar pagamento</button>
-          <button data-action="complete" type="button">Concluir</button>
-        </div>
-
-        <pre id="actionResult">Sem ações ainda.</pre>
-      </section>
-
-      <section class="card">
         <div class="section-head-inline">
-          <h3>Mensagens</h3>
+          <h3>Solicitações recebidas</h3>
           <button id="expireBtn" type="button" class="ghost-btn">Expirar convites</button>
         </div>
-        <div id="walkerRequestsInfo" class="list"></div>
+        <div id="walkerRequestsInfo" class="cards-grid"></div>
       </section>
     </section>
   </main>
