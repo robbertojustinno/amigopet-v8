@@ -8,6 +8,13 @@ let latestMercadoPagoLink = null;
 let currentAccessTab = "client";
 let currentUser = null;
 
+const PRICE_BY_DURATION = {
+  15: 20,
+  30: 35,
+  45: 50,
+  60: 65
+};
+
 function showScreen(screenId) {
   document.querySelectorAll(".screen").forEach((screen) => {
     screen.classList.remove("active");
@@ -19,6 +26,25 @@ function updateHeaderState() {
   const logoutBtn = byId("logoutBtn");
   if (!logoutBtn) return;
   logoutBtn.classList.toggle("hidden", !currentUser);
+}
+
+function goToCurrentHome() {
+  if (!currentUser) {
+    showScreen("landingScreen");
+    return;
+  }
+
+  if (currentUser.role === "admin") {
+    showScreen("adminDashboard");
+    return;
+  }
+
+  if (currentUser.role === "walker") {
+    showScreen("walkerDashboard");
+    return;
+  }
+
+  showScreen("clientDashboard");
 }
 
 function renderSession(user) {
@@ -47,6 +73,7 @@ function renderSession(user) {
       byId("clientSessionInfo").textContent = `${user.full_name || "Cliente"} conectado`;
     }
     fillClientFieldsFromSession();
+    syncEstimatedPrice();
     loadRequests();
   }
 
@@ -58,9 +85,6 @@ function fillClientFieldsFromSession() {
 
   const petOwner = byId("pet_owner_id");
   if (petOwner) petOwner.value = currentUser.id ?? "";
-
-  const requestFilter = byId("request_user_id");
-  if (requestFilter) requestFilter.value = currentUser.id ?? "";
 }
 
 function logout() {
@@ -204,6 +228,16 @@ function loadMap() {
   mapFrame.src = buildMapUrl(address);
 }
 
+function syncEstimatedPrice() {
+  const durationField = byId("duration_minutes");
+  const priceField = byId("price");
+  if (!durationField || !priceField) return;
+
+  const duration = Number(durationField.value || 30);
+  const price = PRICE_BY_DURATION[duration] ?? 35;
+  priceField.value = price;
+}
+
 async function api(path, options = {}) {
   const headers = { ...(options.headers || {}) };
 
@@ -321,13 +355,51 @@ function renderAdminUsers(items) {
 
   items.forEach((item) => {
     const div = document.createElement("div");
-    div.className = "item";
+    div.className = "request-card";
     div.innerHTML = `
-      <strong>${item.full_name}</strong><br>
-      E-mail: ${item.email}<br>
-      Perfil: <span class="tag">${item.role}</span>
-      <span class="tag">${item.city || "-"}</span>
-      <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span>
+      <div class="request-card-top">
+        <div class="request-card-title">${item.full_name}</div>
+        <div><span class="tag">${item.role}</span></div>
+      </div>
+      <div class="request-meta">
+        <span>E-mail: ${item.email}</span>
+        <span>Cidade: ${item.city || "-"}</span>
+        <span>Bairro: ${item.neighborhood || "-"}</span>
+        <span class="${item.online ? "good" : "danger"}">${item.online ? "online" : "offline"}</span>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function renderAdminRequests(items) {
+  const box = byId("adminRequestsList");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  if (!items || items.length === 0) {
+    box.innerHTML = `<div class="item">Sem solicitações ainda.</div>`;
+    return;
+  }
+
+  items.slice(0, 8).forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "request-card";
+    div.innerHTML = `
+      <div class="request-card-top">
+        <div class="request-card-title">Solicitação #${item.id}</div>
+        <div>
+          <span class="tag">${item.status}</span>
+          <span class="tag">${item.payment_status}</span>
+        </div>
+      </div>
+      <div class="request-meta">
+        <span>Cliente: ${item.client_id}</span>
+        <span>Passeador: ${item.walker_id ?? "A definir"}</span>
+        <span>Endereço: ${item.pickup_address || "-"}</span>
+        <span>Valor: R$ ${Number(item.price || 0).toFixed(2)}</span>
+      </div>
     `;
     box.appendChild(div);
   });
@@ -389,6 +461,7 @@ function renderClientRequests(items) {
     btn.addEventListener("click", async () => {
       const requestId = btn.dataset.requestId;
       if (byId("chat_load_request_id")) byId("chat_load_request_id").value = requestId;
+      if (byId("chat_request_id")) byId("chat_request_id").value = requestId;
       await loadMessages();
     });
   });
@@ -472,15 +545,21 @@ async function loadAdminDashboard() {
     if (byId("metricClients")) byId("metricClients").textContent = data.total_clients ?? 0;
     if (byId("metricWalkers")) byId("metricWalkers").textContent = data.total_walkers ?? 0;
     if (byId("metricRevenue")) byId("metricRevenue").textContent = `R$ ${Number(data.total_revenue || 0).toFixed(2)}`;
+    if (byId("metricRequests")) byId("metricRequests").textContent = data.total_requests ?? 0;
+    if (byId("metricCompleted")) byId("metricCompleted").textContent = data.total_completed ?? 0;
+    if (byId("metricPaid")) byId("metricPaid").textContent = data.total_paid ?? 0;
 
     const users = await api("/admin/users");
     renderAdminUsers(users);
+
+    const requests = await api("/walk-requests");
+    renderAdminRequests(requests);
   } catch (err) {
     alert(err.message);
   }
 }
 
-byId("goHomeBtn")?.addEventListener("click", () => showScreen("landingScreen"));
+byId("goHomeBtn")?.addEventListener("click", goToCurrentHome);
 byId("logoutBtn")?.addEventListener("click", logout);
 
 byId("startNowBtn")?.addEventListener("click", () => {
@@ -500,6 +579,7 @@ byId("goToRegisterBtn")?.addEventListener("click", openRegisterForCurrentTab);
 byId("backToLoginBtn")?.addEventListener("click", () => showScreen("loginScreen"));
 
 byId("loadMapBtn")?.addEventListener("click", loadMap);
+byId("duration_minutes")?.addEventListener("change", syncEstimatedPrice);
 window.addEventListener("load", tryAutoLocate);
 
 byId("choosePhotoBtn")?.addEventListener("click", () => byId("profile_photo_file")?.click());
@@ -838,4 +918,5 @@ if (session) {
 setAccessTab("client");
 updatePaymentBoxDefault();
 updateHeaderState();
+syncEstimatedPrice();
 loadRequests();
