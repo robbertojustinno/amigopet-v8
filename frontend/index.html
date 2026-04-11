@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AmigoPet Pro V13</title>
+  <title>AmigoPet Pro V14</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -16,53 +16,98 @@
       </div>
     </div>
 
-    <div class="top-actions">
+    <nav class="top-actions">
       <button type="button" class="ghost-btn" id="goHomeBtn">Início</button>
+      <button type="button" class="ghost-btn" id="goWalkerPublicBtn">Seja passeador</button>
+      <button type="button" class="ghost-btn" id="goAccessBtn">Entrar</button>
       <button type="button" class="ghost-btn hidden" id="logoutBtn">Sair</button>
-    </div>
+    </nav>
   </header>
 
   <main class="page">
+    <!-- LANDING COMERCIAL -->
     <section id="landingScreen" class="screen active">
       <section class="hero-grid">
-        <div class="hero-card">
-          <span class="hero-badge">V13 mais profissional</span>
-          <h2>Transforme sua ideia em um serviço real de passeios para pets.</h2>
+        <div class="hero-card hero-main">
+          <span class="hero-badge">Plataforma profissional de passeios para pets</span>
+          <h2>Passeios confiáveis, operação simples e crescimento real para seu negócio pet.</h2>
           <p class="hero-text">
-            Plataforma com cliente, passeador e admin separados, pagamento integrado e base pronta para crescer.
+            Clientes contratam com praticidade, passeadores recebem oportunidades e você administra tudo em um só sistema.
           </p>
 
           <div class="hero-buttons">
-            <button type="button" class="primary-btn" id="startNowBtn">Começar agora</button>
-            <button type="button" class="ghost-btn" id="seeAccessBtn">Ver acessos</button>
+            <button type="button" class="primary-btn" id="heroHireBtn">Quero contratar</button>
+            <button type="button" class="dark-btn" id="heroWalkerBtn">Quero ser passeador</button>
           </div>
 
           <div class="hero-stats">
             <div class="stat-box">
               <strong>3</strong>
-              <span>Painéis separados</span>
+              <span>Áreas separadas</span>
             </div>
             <div class="stat-box">
               <strong>Pix</strong>
               <span>Pagamento integrado</span>
             </div>
             <div class="stat-box">
-              <strong>Cards</strong>
-              <span>Fluxo mais limpo</span>
+              <strong>Mapa</strong>
+              <span>Localização automática</span>
             </div>
           </div>
         </div>
 
-        <div class="hero-card">
-          <h3>Identidade da marca</h3>
-          <div class="brand-showcase">
-            <div class="brand-showcase-logo">🐶 💚</div>
-            <h2>AmigoPet Pro</h2>
-            <p>Passeios, confiança e cuidado em cada rota.</p>
+        <div class="hero-card hero-side">
+          <h3>Como funciona</h3>
+          <div class="steps-list">
+            <div class="step-item">
+              <span class="step-number">1</span>
+              <div>
+                <strong>Cliente solicita</strong>
+                <p>Escolhe endereço, horário, duração e envia o pedido.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-number">2</span>
+              <div>
+                <strong>Passeador recebe</strong>
+                <p>Aceita, recusa ou conclui tudo no próprio painel.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-number">3</span>
+              <div>
+                <strong>Admin acompanha</strong>
+                <p>Visualiza usuários, solicitações e indicadores do sistema.</p>
+              </div>
+            </div>
           </div>
-          <p class="hero-note">
-            Estrutura organizada para continuar evoluindo até PWA e APK.
-          </p>
+        </div>
+      </section>
+
+      <section class="benefits-section">
+        <div class="section-head">
+          <h2>Por que usar o AmigoPet Pro</h2>
+          <p>Uma base comercial e operacional pensada para crescer com organização.</p>
+        </div>
+
+        <div class="benefits-grid">
+          <article class="benefit-card">
+            <div class="benefit-icon">🛡️</div>
+            <h3>Mais confiança</h3>
+            <p>Organize a operação com mais clareza para clientes, passeadores e administração.</p>
+          </article>
+
+          <article class="benefit-card">
+            <div class="benefit-icon">📍</div>
+            <h3>Mapa e localização</h3>
+            <p>Localização automática e apoio visual no endereço do passeio.</p>
+          </article>
+
+          <article class="benefit-card">
+            <div class="benefit-icon">💳</div>
+            <h3>Pagamento integrado</h3>
+            <p>Geração de pagamento com uma experiência mais limpa para o cliente.</p>
+          </article>
         </div>
       </section>
 
@@ -78,7 +123,7 @@
           <article class="access-card compact-card">
             <div class="access-icon">🛠️</div>
             <h3>Admin</h3>
-            <p>Controle usuários, pagamentos, solicitações e o crescimento do sistema.</p>
+            <p>Controle usuários, pagamentos, solicitações e desempenho do sistema.</p>
             <button type="button" class="dark-btn access-open-btn" data-target="admin">Entrar como Admin</button>
           </article>
 
@@ -99,6 +144,72 @@
       </section>
     </section>
 
+    <!-- PÁGINA PÚBLICA PASSEADOR -->
+    <section id="walkerPublicScreen" class="screen">
+      <section class="walker-public-hero">
+        <div class="walker-public-content">
+          <span class="hero-badge">Seja passeador parceiro</span>
+          <h2>Ganhe com passeios, organize sua agenda e atue na sua região.</h2>
+          <p>
+            Entre para a plataforma, receba solicitações, escolha sua rotina e cresça com uma operação mais profissional.
+          </p>
+          <div class="hero-buttons">
+            <button type="button" class="primary-btn" id="walkerPublicRegisterBtn">Quero me cadastrar</button>
+            <button type="button" class="ghost-btn" id="walkerPublicLoginBtn">Já sou passeador</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="requirements-grid">
+        <article class="info-card">
+          <h3>Vantagens</h3>
+          <ul class="clean-list">
+            <li>Receba oportunidades pela plataforma</li>
+            <li>Organize melhor seus atendimentos</li>
+            <li>Atue por região</li>
+            <li>Tenha um perfil profissional</li>
+          </ul>
+        </article>
+
+        <article class="info-card">
+          <h3>Requisitos</h3>
+          <ul class="clean-list">
+            <li>Ser maior de idade</li>
+            <li>Ter smartphone com internet</li>
+            <li>Enviar foto de perfil</li>
+            <li>Manter disponibilidade e responsabilidade</li>
+          </ul>
+        </article>
+
+        <article class="info-card">
+          <h3>Como entrar</h3>
+          <ul class="clean-list">
+            <li>Faça seu cadastro</li>
+            <li>Envie sua foto</li>
+            <li>Complete seus dados</li>
+            <li>Acesse sua área e receba pedidos</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="faq-card">
+        <h3>Perguntas rápidas</h3>
+        <div class="faq-item">
+          <strong>Preciso escolher horário fixo?</strong>
+          <p>Não. A plataforma pode evoluir para horários e áreas de atuação mais flexíveis.</p>
+        </div>
+        <div class="faq-item">
+          <strong>Preciso mandar foto?</strong>
+          <p>Sim. O perfil do passeador precisa transmitir confiança.</p>
+        </div>
+        <div class="faq-item">
+          <strong>Posso começar agora?</strong>
+          <p>Sim. Você já pode criar seu cadastro e acessar sua área.</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- LOGIN -->
     <section id="loginScreen" class="screen">
       <div class="panel-card auth-card">
         <div class="auth-head">
@@ -119,6 +230,7 @@
       </div>
     </section>
 
+    <!-- CADASTRO -->
     <section id="registerScreen" class="screen">
       <div class="panel-card auth-card">
         <div class="auth-head">
@@ -169,6 +281,7 @@
       </div>
     </section>
 
+    <!-- ADMIN -->
     <section id="adminDashboard" class="screen">
       <div class="dashboard-head">
         <div>
@@ -229,6 +342,7 @@
       </section>
     </section>
 
+    <!-- CLIENTE -->
     <section id="clientDashboard" class="screen">
       <div class="dashboard-head">
         <div>
@@ -337,6 +451,7 @@
       </section>
     </section>
 
+    <!-- PASSEADOR -->
     <section id="walkerDashboard" class="screen">
       <div class="dashboard-head">
         <div>
