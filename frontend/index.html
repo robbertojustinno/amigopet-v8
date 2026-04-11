@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AmigoPet Pro V12</title>
+  <title>AmigoPet Pro V13</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -23,11 +23,10 @@
   </header>
 
   <main class="page">
-    <!-- TELA INICIAL -->
     <section id="landingScreen" class="screen active">
       <section class="hero-grid">
         <div class="hero-card">
-          <span class="hero-badge">V12 visual mais profissional</span>
+          <span class="hero-badge">V13 mais profissional</span>
           <h2>Transforme sua ideia em um serviço real de passeios para pets.</h2>
           <p class="hero-text">
             Plataforma com cliente, passeador e admin separados, pagamento integrado e base pronta para crescer.
@@ -100,7 +99,6 @@
       </section>
     </section>
 
-    <!-- LOGIN -->
     <section id="loginScreen" class="screen">
       <div class="panel-card auth-card">
         <div class="auth-head">
@@ -121,7 +119,6 @@
       </div>
     </section>
 
-    <!-- CADASTRO -->
     <section id="registerScreen" class="screen">
       <div class="panel-card auth-card">
         <div class="auth-head">
@@ -172,7 +169,6 @@
       </div>
     </section>
 
-    <!-- PAINEL ADMIN -->
     <section id="adminDashboard" class="screen">
       <div class="dashboard-head">
         <div>
@@ -197,7 +193,22 @@
         </div>
         <div class="metric-card">
           <span>Receita</span>
-          <strong id="metricRevenue">R$ 0</strong>
+          <strong id="metricRevenue">R$ 0,00</strong>
+        </div>
+      </section>
+
+      <section class="dashboard-grid dashboard-grid-3">
+        <div class="metric-card metric-soft">
+          <span>Solicitações totais</span>
+          <strong id="metricRequests">0</strong>
+        </div>
+        <div class="metric-card metric-soft">
+          <span>Concluídas</span>
+          <strong id="metricCompleted">0</strong>
+        </div>
+        <div class="metric-card metric-soft">
+          <span>Pagas</span>
+          <strong id="metricPaid">0</strong>
         </div>
       </section>
 
@@ -206,11 +217,18 @@
           <h3>Usuários</h3>
           <button type="button" class="ghost-btn" id="refreshAdminBtn">Atualizar painel</button>
         </div>
-        <div id="adminUsersList" class="list"></div>
+        <div id="adminUsersList" class="cards-grid"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head-inline">
+          <h3>Solicitações recentes</h3>
+          <span class="hint">Resumo operacional do sistema</span>
+        </div>
+        <div id="adminRequestsList" class="cards-grid"></div>
       </section>
     </section>
 
-    <!-- PAINEL CLIENTE -->
     <section id="clientDashboard" class="screen">
       <div class="dashboard-head">
         <div>
@@ -245,7 +263,7 @@
               <option value="medio">Médio</option>
               <option value="grande">Grande</option>
             </select>
-            <input type="text" id="pet_notes" placeholder="Observações" />
+            <textarea id="pet_notes" class="pet-notes" placeholder="Observações"></textarea>
             <button type="submit">Salvar pet</button>
           </form>
         </div>
@@ -267,6 +285,7 @@
             <input type="text" id="walk_neighborhood" placeholder="Bairro" />
             <input type="text" id="walk_city" placeholder="Cidade" />
             <input type="datetime-local" id="scheduled_at" />
+
             <label class="field-label" for="duration_minutes">Duração do passeio</label>
             <select id="duration_minutes">
               <option value="15">15 minutos</option>
@@ -274,8 +293,10 @@
               <option value="45">45 minutos</option>
               <option value="60">60 minutos</option>
             </select>
+
             <label class="field-label" for="price">Valor estimado</label>
-            <input type="number" id="price" placeholder="Valor estimado" value="35" step="0.01" />
+            <input type="number" id="price" placeholder="Valor estimado" value="35" step="0.01" readonly />
+
             <input type="text" id="walk_notes" placeholder="Observações" />
             <button type="submit">Criar solicitação</button>
           </form>
@@ -316,7 +337,6 @@
       </section>
     </section>
 
-    <!-- PAINEL PASSEADOR -->
     <section id="walkerDashboard" class="screen">
       <div class="dashboard-head">
         <div>
