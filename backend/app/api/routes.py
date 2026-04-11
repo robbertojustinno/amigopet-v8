@@ -78,7 +78,7 @@ def admin_login(payload: UserLogin):
     if not admin_email or not admin_password:
         raise HTTPException(status_code=500, detail="Admin não configurado no servidor.")
 
-    if payload.email != admin_email or payload.password != admin_password:
+    if payload.email.strip().lower() != admin_email.strip().lower() or payload.password.strip() != admin_password.strip():
         raise HTTPException(status_code=401, detail="Credenciais admin inválidas.")
 
     return {
@@ -147,24 +147,28 @@ def admin_list_users(db: Session = Depends(get_db)):
 
 @router.post("/users/register", response_model=UserOut)
 def register_user(payload: UserCreate, db: Session = Depends(get_db)):
+    normalized_email = payload.email.strip().lower()
+    normalized_password = payload.password.strip()
+    normalized_full_name = payload.full_name.strip()
+
     if payload.role not in {"client", "walker"}:
         raise HTTPException(status_code=400, detail="Role inválida.")
 
     if payload.role == "walker" and not payload.profile_photo:
         raise HTTPException(status_code=400, detail="Passeador precisa enviar foto obrigatoriamente.")
 
-    exists = db.scalar(select(User).where(User.email == payload.email))
+    exists = db.scalar(select(User).where(User.email == normalized_email))
     if exists:
         raise HTTPException(status_code=400, detail="E-mail já cadastrado.")
 
     user = User(
-        full_name=payload.full_name,
-        email=payload.email,
-        password=payload.password,
+        full_name=normalized_full_name,
+        email=normalized_email,
+        password=normalized_password,
         role=payload.role,
-        neighborhood=payload.neighborhood,
-        city=payload.city,
-        address=payload.address or settings.DEFAULT_ADDRESS,
+        neighborhood=(payload.neighborhood or "").strip(),
+        city=(payload.city or "").strip(),
+        address=(payload.address or settings.DEFAULT_ADDRESS).strip(),
         profile_photo=payload.profile_photo,
         online=False,
         active=True,
@@ -177,9 +181,16 @@ def register_user(payload: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/users/login", response_model=UserOut)
 def login_user(payload: UserLogin, db: Session = Depends(get_db)):
+    normalized_email = payload.email.strip().lower()
+    normalized_password = payload.password.strip()
+
     user = db.scalar(
-        select(User).where(User.email == payload.email, User.password == payload.password)
+        select(User).where(
+            User.email == normalized_email,
+            User.password == normalized_password
+        )
     )
+
     if not user:
         raise HTTPException(status_code=401, detail="Credenciais inválidas.")
 
@@ -277,12 +288,51 @@ def list_walk_requests(user_id: int | None = None, db: Session = Depends(get_db)
     return list(db.scalars(query.order_by(WalkRequest.id.desc())).all())
 
 
+@router.get("/walk-requests-detailed")
+def list_walk_requests_detailed(user_id: int | None = None, db: Session = Depends(get_db)):
+    query = select(WalkRequest)
+    if user_id:
+        query = query.where(
+            (WalkRequest.client_id == user_id) | (WalkRequest.walker_id == user_id)
+        )
+
+    items = list(db.scalars(query.order_by(WalkRequest.id.desc())).all())
+    result = []
+
+    for item in items:
+        client = db.get(User, item.client_id) if item.client_id else None
+        walker = db.get(User, item.walker_id) if item.walker_id else None
+        pet = db.get(Pet, item.pet_id) if item.pet_id else None
+
+        result.append({
+            "id": item.id,
+            "client_id": item.client_id,
+            "walker_id": item.walker_id,
+            "pet_id": item.pet_id,
+            "pickup_address": item.pickup_address,
+            "neighborhood": item.neighborhood,
+            "city": item.city,
+            "scheduled_at": item.scheduled_at.isoformat() if item.scheduled_at else None,
+            "duration_minutes": item.duration_minutes,
+            "price": float(item.price or 0),
+            "notes": item.notes,
+            "status": item.status,
+            "payment_status": item.payment_status,
+            "client_name": client.full_name if client else None,
+            "walker_name": walker.full_name if walker else None,
+            "walker_photo": walker.profile_photo if walker and walker.profile_photo else None,
+            "pet_name": pet.name if pet else None,
+        })
+
+    return result
+
+
 @router.post("/walk-requests/{request_id}/accept", response_model=WalkRequestOut)
 def accept_walk_request(request_id: int, payload: WalkRequestAction, db: Session = Depends(get_db)):
     walk = db.get(WalkRequest, request_id)
     if not walk:
         raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
-    if walk.walker_id != payload.actor_id:
+    if walk.walker_id and walk.walker_id != payload.actor_id:
         raise HTTPException(status_code=403, detail="Somente o passeador convidado pode aceitar.")
     if walk.status not in {"invited", "pending"}:
         raise HTTPException(status_code=400, detail="Solicitação não pode mais ser aceita.")
@@ -290,6 +340,9 @@ def accept_walk_request(request_id: int, payload: WalkRequestAction, db: Session
         walk.status = "expired"
         db.commit()
         raise HTTPException(status_code=400, detail="Convite expirou.")
+
+    if not walk.walker_id:
+        walk.walker_id = payload.actor_id
 
     walk.status = "accepted"
     db.commit()
@@ -303,7 +356,7 @@ def decline_walk_request(request_id: int, payload: WalkRequestAction, db: Sessio
     walk = db.get(WalkRequest, request_id)
     if not walk:
         raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
-    if walk.walker_id != payload.actor_id:
+    if walk.walker_id and walk.walker_id != payload.actor_id:
         raise HTTPException(status_code=403, detail="Somente o passeador convidado pode recusar.")
     walk.status = "declined"
     db.commit()
@@ -372,6 +425,17 @@ def send_message(payload: MessageCreate, db: Session = Depends(get_db)):
     if not walk:
         raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
 
+    sender = db.get(User, payload.sender_id)
+    if not sender:
+        raise HTTPException(status_code=404, detail="Usuário remetente não encontrado.")
+
+    allowed_ids = {walk.client_id}
+    if walk.walker_id:
+        allowed_ids.add(walk.walker_id)
+
+    if payload.sender_id not in allowed_ids:
+        raise HTTPException(status_code=403, detail="Usuário não participa desta solicitação.")
+
     msg = Message(**payload.model_dump())
     db.add(msg)
     db.commit()
@@ -383,21 +447,45 @@ def send_message(payload: MessageCreate, db: Session = Depends(get_db)):
             "type": "new_message",
             "request_id": walk.id,
             "sender_id": payload.sender_id,
+            "sender_name": sender.full_name,
             "text": payload.text,
         },
     )
     return msg
 
 
-@router.get("/messages/{request_id}", response_model=list[MessageOut])
+@router.get("/messages/{request_id}")
 def list_messages(request_id: int, db: Session = Depends(get_db)):
-    return list(
+    walk = db.get(WalkRequest, request_id)
+    if not walk:
+        raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
+
+    messages = list(
         db.scalars(
             select(Message)
             .where(Message.walk_request_id == request_id)
             .order_by(Message.id.asc())
         ).all()
     )
+
+    client = db.get(User, walk.client_id) if walk.client_id else None
+    walker = db.get(User, walk.walker_id) if walk.walker_id else None
+
+    result = []
+    for msg in messages:
+      sender = db.get(User, msg.sender_id)
+      result.append({
+          "id": msg.id,
+          "walk_request_id": msg.walk_request_id,
+          "sender_id": msg.sender_id,
+          "sender_name": sender.full_name if sender else f"Usuário {msg.sender_id}",
+          "sender_role": sender.role if sender else None,
+          "text": msg.text,
+          "client_name": client.full_name if client else None,
+          "walker_name": walker.full_name if walker else None,
+      })
+
+    return result
 
 
 @router.post("/maintenance/expire-invites")
