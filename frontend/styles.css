@@ -108,7 +108,8 @@ textarea {
 .actions,
 .toolbar,
 .upload-actions,
-.dashboard-grid {
+.dashboard-grid,
+.cards-grid {
   display: grid;
   gap: 22px;
 }
@@ -133,11 +134,16 @@ textarea {
   grid-template-columns: repeat(4, 1fr);
 }
 
+.cards-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
 .hero-card,
 .access-card,
 .panel-card,
 .card,
-.metric-card {
+.metric-card,
+.request-card {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -168,7 +174,8 @@ textarea {
 .auth-head p,
 .dashboard-head p,
 .payment-status-subtitle,
-.section-head p {
+.section-head p,
+.request-card p {
   color: var(--muted);
 }
 
@@ -302,13 +309,13 @@ button {
 
 .primary-btn,
 button[type="submit"],
-button[data-action],
 #generateMpPaymentBtn,
 #openMpPaymentBtn,
 #loadMapBtn,
 #loadRequestsBtn,
 #expireBtn,
-#loadMessagesBtn {
+#loadMessagesBtn,
+.card-action-btn {
   background: linear-gradient(90deg, #16a34a, #0ea5e9);
   color: #fff;
 }
@@ -363,6 +370,41 @@ pre,
   border-radius: 14px;
   background: #f8fbff;
   border: 1px solid #d9e4f3;
+}
+
+.request-card {
+  display: grid;
+  gap: 12px;
+}
+
+.request-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.request-card-title {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.request-meta {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.request-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.request-actions button {
+  flex: 1;
+  min-width: 120px;
 }
 
 .actions,
