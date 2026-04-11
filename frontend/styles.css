@@ -138,6 +138,10 @@ textarea {
   grid-template-columns: repeat(4, 1fr);
 }
 
+.dashboard-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .cards-grid {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
@@ -153,6 +157,10 @@ textarea {
   border-radius: 24px;
   padding: 24px;
   box-shadow: var(--shadow);
+}
+
+.metric-soft {
+  background: #f7fbff;
 }
 
 .compact-access {
@@ -343,6 +351,10 @@ textarea {
 textarea {
   min-height: 100px;
   resize: vertical;
+}
+
+.pet-notes {
+  min-height: 120px;
 }
 
 button {
@@ -537,6 +549,7 @@ pre,
   .grid-2,
   .grid-3,
   .dashboard-grid-4,
+  .dashboard-grid-3,
   .hero-stats {
     grid-template-columns: 1fr;
   }
