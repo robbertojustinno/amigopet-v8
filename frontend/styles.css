@@ -122,6 +122,10 @@ textarea {
   grid-template-columns: repeat(3, 1fr);
 }
 
+.compact-grid {
+  gap: 16px;
+}
+
 .grid-2 {
   grid-template-columns: repeat(2, 1fr);
 }
@@ -151,6 +155,41 @@ textarea {
   box-shadow: var(--shadow);
 }
 
+.compact-access {
+  margin-top: 8px;
+}
+
+.compact-head h2 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.compact-head p {
+  font-size: 14px;
+}
+
+.compact-card {
+  padding: 18px;
+  border-radius: 20px;
+}
+
+.compact-card h3 {
+  margin: 4px 0 8px;
+  font-size: 18px;
+}
+
+.compact-card p {
+  font-size: 14px;
+  min-height: 54px;
+}
+
+.compact-card .access-icon {
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  border-radius: 16px;
+}
+
 .hero-badge {
   display: inline-block;
   background: #d8f4de;
@@ -175,8 +214,15 @@ textarea {
 .dashboard-head p,
 .payment-status-subtitle,
 .section-head p,
-.request-card p {
+.request-card p,
+.field-label {
   color: var(--muted);
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 2px;
 }
 
 .hero-buttons {
@@ -309,8 +355,6 @@ button {
 
 .primary-btn,
 button[type="submit"],
-#generateMpPaymentBtn,
-#openMpPaymentBtn,
 #loadMapBtn,
 #loadRequestsBtn,
 #expireBtn,
